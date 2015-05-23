@@ -1,0 +1,86 @@
+Codebook for data frame output generated with run_analysis.R
+Author: Olusola Soyemi
+
+=========================================================================================================================
+The tidy_data set generated with run_Analysis.R is has 180 observations (rows) and 68 variables (columns).
+
+The 180 observations are derived from 30 subjects each of whom is directed to perform 6 unique activities (i.e. 30 x 6)
+
+The first 2 variables (columns) identify the "Subject" and "Activity" respectively. Both variables are factor variables.
+
+"Subject" has 30 levels (for subjects 1 - 30)
+"Activity" has 6 levels (1 - 6) that identify the following 6 activity types:  
+1 = "Walking"; 2 = "Walking_Upstairs"; 3 = "Walking_Downstairs
+4 = "Sitting"; 5 = "Standing"; 6 = "Laying"
+
+
+The remaining 66 variables (i.e. columns 3 to 68) represent the average mean and average standard deviation of accelerometer and gyroscope 
+measurements acquired from each subject during each activity. All the variables are numeric and they are listed as follows:
+
+
+1	tBodyAcc-mean()-x
+2	tBodyAcc-mean()-Y
+3	tBodyAcc-mean()-Z
+4	tBodyAcc-std()-X
+5	tBodyAcc-std()-Y
+6	tBodyAcc-std()-Z
+7	tGravityAcc-mean()-X
+8	tGravityAcc-mean()-Y
+9	tGravityAcc-mean()-Z
+10	tGravityAcc-std()-X
+11	tGravityAcc-std()-Y
+12	tGravityAcc-std()-Z
+13	tBodyAccJerk-mean()-X
+14	tBodyAccJerk-mean()-Y
+15	tBodyAccJerk-mean()-Z
+16	tBodyAccJerk-std()-X
+17	tBodyAccJerk-std()-Y
+18	tBodyAccJerk-std()-Z
+19	tBodyGyro-mean()-X
+20	tBodyGyro-mean()-Y
+21	tBodyGyro-mean()-Z
+22	tBodyGyro-std()-X
+23	tBodyGyro-std()-Y
+24	tBodyGyro-std()-Z
+25	tBodyGyroJerk-mean()-X
+26	tBodyGyroJerk-mean()-Y
+27	tBodyGyroJerk-mean()-Z
+28	tBodyGyroJerk-std()-X
+29	tBodyGyroJerk-std()-Y
+30	tBodyGyroJerk-std()-Z
+31	tBodyAccMag-mean()
+32	tBodyAccMag-std()
+33	tGravityAccMag-mean()
+34	tGravityAccMag-std()
+35	tBodyAccJerkMag-mean()
+36	tBodyAccJerkMag-std()
+37	tBodyGyroMag-mean()
+38	tBodyGyroMag-std()
+39	tBodyGyroJerkMag-mean()
+40	tBodyGyroJerkMag-std()
+41	fBodyAcc-mean()-X
+42	fBodyAcc-mean()-Y
+43	fBodyAcc-mean()-Z
+44	fBodyAcc-std()-X
+45	fBodyAcc-std()-Y
+46	fBodyAcc-std()-Z
+47	fBodyAccJerk-mean()-X
+48	fBodyAccJerk-mean()-Y
+49	fBodyAccJerk-mean()-Z
+50	fBodyAccJerk-std()-X
+51	fBodyAccJerk-std()-Y
+52	fBodyAccJerk-std()-Z
+53	fBodyGyro-mean()-X
+54	fBodyGyro-mean()-Y
+55	fBodyGyro-mean()-Z
+56	fBodyGyro-std()-X
+57	fBodyGyro-std()-Y
+58	fBodyGyro-std()-Z
+59	fBodyAccMag-mean()
+60	fBodyAccMag-std()
+61	fBodyBodyAccJerkMag-mean()
+62	fBodyBodyAccJerkMag-std()
+63	fBodyBodyGyroMag-mean()
+64	fBodyBodyGyroMag-std()
+65	fBodyBodyGyroJerkMag-mean()
+66	fBodyBodyGyroJerkMag-std()
