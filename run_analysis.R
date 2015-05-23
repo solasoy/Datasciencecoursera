@@ -80,7 +80,7 @@ run_analysis <- function() {
   ## tidy data set with the average of each variable for each activity and each subject.
   
   col_a <- colnames(data[,1:2]) # subject and activity
-  col_b <- colnames(data[,3:length(variables)]) # other variables
+  col_b <- colnames(data[,3:dim(data)[2]]) # other variables
   tidy_data <- aggregate(data[col_b], by = data[col_a], FUN=mean)
   
   if (writeflag==1){
