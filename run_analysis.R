@@ -1,10 +1,10 @@
 run_analysis <- function() {
   
-  setwd("C://Users//solasoy//Dropbox//GitHub//Datasciencecoursera")
+  setwd("C://Users//solasoy//Dropbox//R//Coursera")
   
   # Load Dataset ------------------------------
   
-  dr = "C://Users//solasoy//Dropbox//GitHub//Datasciencecoursera"
+  dr = "C://Users//solasoy//Dropbox//R//Coursera"
   writeflag = 0
   
   paste(dr,"//test//","X_test.txt",sep="")
@@ -59,8 +59,6 @@ run_analysis <- function() {
     data_reduced <- data.frame(cbind(data_reduced,data[,2+h[i]]))
   }
   
-  
-  
   ## (3) Uses descriptive activity names to name the activities in the data set ----------------
   
   activity[activity == 1] = 'Walking'
@@ -82,7 +80,7 @@ run_analysis <- function() {
   ## tidy data set with the average of each variable for each activity and each subject.
   
   col_a <- colnames(data[,1:2]) # subject and activity
-  col_b <- colnames(data[,3:dim(data)[2]]) # other variables
+  col_b <- colnames(data[,3:length(variables)]) # other variables
   tidy_data <- aggregate(data[col_b], by = data[col_a], FUN=mean)
   
   if (writeflag==1){
