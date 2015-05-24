@@ -14,4 +14,4 @@ The program "run_analysis.R" generates a tidy dataset from the larger Smartphone
 
 * (5) The data frame columns (3 to 68) are labelled with the descriptive name of each measurement variable in the reduced data set.
 
-* (6) A second data frame (tidy data set) is created with the average of each variable in the reduced dataset for each activity and each subject
+* (6) A second data frame (tidy data set) is created with the average of each variable in the reduced dataset for each activity and each subject yielding a 180 x 68 data frame

@@ -59,7 +59,7 @@ run_analysis <- function() {
     data_reduced <- data.frame(cbind(data_reduced,data[,2+h[i]]))
   }
   
-  ## (3) Uses descriptive activity names to name the activities in the data set ----------------
+  ## (3) Replace the variable "activity" with descriptive names ----------------
   
   activity[activity == 1] = 'Walking'
   activity[activity == 2] = 'Walking_Upstairs'
@@ -70,13 +70,13 @@ run_analysis <- function() {
   data$activity <- activity
   
   
-  ## (4) Appropriately labels the data set with descriptive variable names ---------------
+  ## (4) Label the data set with descriptive variable names ---------------
   variables <- variables[h] # Reduced list of variables
   colnames(data_reduced) <- variables
   data <- cbind(data[,1:2],data_reduced)
   
   
-  ## (5) From the data set in step 4, creates a second, independent --------------------
+  ## (5) From the data set in step 4, create a second, independent --------------------
   ## tidy data set with the average of each variable for each activity and each subject.
   
   col_a <- colnames(data[,1:2]) # subject and activity
