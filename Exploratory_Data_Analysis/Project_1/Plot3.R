@@ -58,7 +58,6 @@ print("Done!")
 
 # Plot Data --------------------------------------
 
-par(mfrow=c(1,1))
 tm <- paste(as.character(data$Date),as.character(data$Time),sep=" ")
 tm <- strptime(tm,format="%Y-%m-%d %H:%M:%S")
 plot(c(tm[1],tm[length(tm)]),c(0,40),type="n",
