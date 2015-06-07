@@ -75,6 +75,6 @@ legend("topright",
        cex=0.7)
 axis.Date(1,at=seq(tm[1],tm[length(tm)],by=60),format="%d")
 
-dev.copy(png, file = "Plot3.png") 
+#dev.copy(png, file = "Plot3.png") 
 png(filename="Plot3.png",width=480,height=480,units="px")
 dev.off()

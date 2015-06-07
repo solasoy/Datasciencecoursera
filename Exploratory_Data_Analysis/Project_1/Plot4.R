@@ -91,6 +91,6 @@ plot(tm,as.numeric(data$Global_reactive_power),xlab="datetime",
 axis.Date(1,at=seq(tm[1],tm[length(tm)],by=60),format="%d")
 
 
-dev.copy(png, file = "Plot4.png") 
+#dev.copy(png, file = "Plot4.png") 
 png(filename="Plot4.png",width=480,height=480,units="px")
 dev.off()

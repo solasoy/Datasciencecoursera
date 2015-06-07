@@ -62,6 +62,6 @@ plot(tm,as.numeric(data$Global_active_power),
      type="l",xlab="",ylab="Global Active Power (kilowatts)")
 axis.Date(1,at=seq(tm[1],tm[length(tm)],by=60),format="%d")
 
-dev.copy(png, file = "Plot2.png") 
+#dev.copy(png, file = "Plot2.png") 
 png(filename="Plot2.png",width=480,height=480,units="px")
 dev.off()

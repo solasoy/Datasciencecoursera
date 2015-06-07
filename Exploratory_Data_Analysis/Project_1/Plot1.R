@@ -66,6 +66,7 @@ hist(y,
      ylim=c(0,1200),
      xlab = "Global Active Power (kilowatts)")
 
-dev.copy(png, file = "Plot1.png") 
+# dev.copy(png, file = "Plot1.png") 
+# png(file = "Plot1.png")
 png(filename="Plot1.png",width=480,height=480,units="px")
 dev.off()
