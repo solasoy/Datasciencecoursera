@@ -1,0 +1,149 @@
+Assignment 1
+=================================================================================================
+
+Data from a personal monitoring device was downloaded as follows:
+
+```{r,echo=TRUE}
+setwd("C://Users//solasoy//Dropbox//R//Coursera//Reproducible Research")
+x <- read.csv('activity.csv')
+```
+
+# Q1: What is mean total number of steps taken per day?
+
+## Total number of steps taken per day
+
+```{r,echo=TRUE,result="asis"}
+grp <- split(as.numeric(x$steps),x$date)
+spd <- sapply(grp,sum)
+data.frame(steps_per_day=spd)
+```
+
+## Histogram of the total number of steps taken each day
+
+```{r,echo=TRUE}
+hist(spd[!is.na(spd)],
+     breaks=12,
+     col="blue",
+     main = "Histogram of Steps_Per_Day",
+     xlab = "Total Steps_Per_Day")
+```
+
+## Mean and median of the total number of steps taken per day
+
+```{r,echo=TRUE,result="asis"}
+mean(spd[!is.na(spd)])
+median(spd[!is.na(spd)])
+```
+
+# Q2: What is the average daily activity pattern?
+
+## Time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
+
+
+```{r,echo=TRUE}
+n <- split(as.numeric(x$steps[!is.na(x$steps)]),x$interval[!is.na(x$steps)])
+avg_steps <- sapply(n,mean)
+interval = unique(x$interval)
+
+plot(interval,avg_steps,type="l",
+     xlab="5min Interval",
+     ylab= "Steps averaged across all days")
+```
+
+## 5-minute interval on average across all the days in the dataset, containing the maximum number of steps
+
+```{r,echo=TRUE,result="asis"}
+interval[avg_steps == max(avg_steps)]
+```
+
+# Q3: Imputing missing values
+
+## Total number of missing values in the dataset 
+
+```{r,echo=TRUE,result="asis"}
+length(x[is.na(x[,1]),1])
+```
+
+## Determine distribution of missing values in dataset
+
+```{r,echo=TRUE}
+v <- unique(x$date)
+h <- seq(1,length(v))
+for (k in 1:length(h)) h[k] <- length(x[is.na(x$steps) & x$date==v[k],1])
+plot(h,type="b",xlab="Day Number",ylab="Number of Missing Values")
+```
+
+### The plot above indicates that the missing values are limited to only 8 of the 61 days of this experiment. On each of the 8 days, no steps were recored i.e. all  288 measurements are missing
+
+
+## Create new dataset with missing values replaced with median value of steps at each interval across all days
+
+```{r,echo=TRUE}
+median_steps <- sapply(n,median)
+x_fill = x
+for (j in 1:length(v)) {
+  if (length(x_fill[is.na(x_fill$steps) & x_fill$date==v[j],1])==288) {
+    x_fill[is.na(x_fill$steps) & x_fill$date==v[j],1] <- median_steps 
+  } 
+}
+```
+
+## Generate histogram of total number of steps from new dataset and compare with original
+
+```{r,echo=TRUE}
+grp_fill <- split(x_fill$steps,x_fill$date)
+spd_fill <- sapply(grp_fill,sum)
+
+hist(spd_fill,
+     breaks=12,
+     col="blue",
+     main = "Histogram of Steps_Per_Day (filled data)",
+     xlab = "Steps_Per_Day")
+```
+
+### From the histogram above, we observe a larger frequency of total number of steps per day that is approximately 2000 or less, relative to the initial histogram; otherwise the frequency distribution for this histogram is similar to the first one.
+
+## Mean and median total number of steps taken per day from new dataset
+
+```{r,echo=TRUE,result="asis"}
+mean(spd_fill)
+median(spd_fill)
+```
+
+# Q4: Are there differences in activity patterns between weekdays and weekends?
+
+## Create a new factor variable in the dataset with two levels - "weekday" and "weekend"
+
+```{r,echo=TRUE}
+u <- weekdays(as.Date(x_fill$date))
+h <- unique(x_fill$date)
+tarray <- seq(as.POSIXct(h[1]), as.POSIXct(h[length(h)]),"days")
+w <- weekdays(tarray)
+day_flag <- array(0,length(u))
+for (j in 1:length(w)) {
+  if (w[j] =="Saturday" | w[j]=="Sunday") day_flag[u==w[j]] = "weekend"
+}
+day_flag [day_flag==0]="weekday"
+x_new <- data.frame(cbind(x_fill,day_flag))
+```
+
+## Generate panel plot containing a time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). 
+
+```{r,echo=TRUE}
+library(lattice)
+
+avg <- array(0,dim(x_new)[1])
+for (i in 1:length(interval)) {
+  avg[x_new$interval==interval[i] & x_new$day_flag == "weekday"] <- 
+    mean(x_new[x_new$interval==interval[i] & x_new$day_flag == "weekday","steps"])
+  
+  avg[x_new$interval==interval[i] & x_new$day_flag == "weekend"] <- 
+    mean(x_new[x_new$interval==interval[i] & x_new$day_flag == "weekend","steps"])               
+}
+
+df <- data.frame(interval=x_new$interval,
+      average_steps=as.numeric(avg),
+      day_flag=x_new$day_flag)
+
+xyplot(average_steps ~ interval | day_flag,type = "l",df)
+```
