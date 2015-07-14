@@ -9,9 +9,9 @@ setwd("C://Users//solasoy//Dropbox//R//Coursera//Reproducible Research")
 x <- read.csv('activity.csv')
 ```
 
-# Q1: What is mean total number of steps taken per day?
+# Q1: What is the mean total number of steps taken per day?
 
-## Total number of steps taken per day
+### 1. Calculate total number of steps taken per day
 
 
 ```r
@@ -85,7 +85,7 @@ data.frame(steps_per_day=spd)
 ## 2012-11-30            NA
 ```
 
-## Histogram of the total number of steps taken each day
+### 2. Plot histogram of the total number of steps taken each day
 
 
 ```r
@@ -98,7 +98,7 @@ hist(spd[!is.na(spd)],
 
 ![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3-1.png) 
 
-## Mean and median of the total number of steps taken per day
+### 3. Calucluate mean and median of the total number of steps taken per day
 
 
 ```r
@@ -119,7 +119,7 @@ median(spd[!is.na(spd)])
 
 # Q2: What is the average daily activity pattern?
 
-## Time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
+### 1. Generate time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
 
 
 
@@ -135,7 +135,7 @@ plot(interval,avg_steps,type="l",
 
 ![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5-1.png) 
 
-## 5-minute interval on average across all the days in the dataset, containing the maximum number of steps
+### 2. Determine the 5-minute interval that corresponds to the maximum number of steps (averages across all the days in the dataset)
 
 
 ```r
@@ -148,7 +148,7 @@ interval[avg_steps == max(avg_steps)]
 
 # Q3: Imputing missing values
 
-## Total number of missing values in the dataset 
+### 1. Total number of missing values in the dataset 
 
 
 ```r
@@ -159,7 +159,7 @@ length(x[is.na(x[,1]),1])
 ## [1] 2304
 ```
 
-## Determine distribution of missing values in dataset
+### 2. Determine distribution of missing values in dataset
 
 
 ```r
@@ -171,10 +171,10 @@ plot(h,type="b",xlab="Day Number",ylab="Number of Missing Values")
 
 ![plot of chunk unnamed-chunk-8](figure/unnamed-chunk-8-1.png) 
 
-### The plot above indicates that the missing values are limited to only 8 of the 61 days of this experiment. On each of the 8 days, no steps were recored i.e. all  288 measurements are missing
+#### The plot above indicates that the missing values are limited to only 8 of the 61 days of this experiment. On each of the 8 days, no steps were recored i.e. all  288 measurements are missing
 
 
-## Create new dataset with missing values replaced with median value of steps at each interval across all days
+### 3. Create new dataset with missing values replaced with median value of steps at each interval across all days
 
 
 ```r
@@ -187,7 +187,7 @@ for (j in 1:length(v)) {
 }
 ```
 
-## Generate histogram of total number of steps from new dataset and compare with original
+### 4. Generate histogram of total number of steps from new dataset and compare with original
 
 
 ```r
@@ -203,9 +203,9 @@ hist(spd_fill,
 
 ![plot of chunk unnamed-chunk-10](figure/unnamed-chunk-10-1.png) 
 
-### From the histogram above, we observe a larger frequency of total number of steps per day that is approximately 2000 or less, relative to the initial histogram; otherwise the frequency distribution for this histogram is similar to the first one.
+#### From the histogram above, we observe a larger frequency of total number of steps per day that is approximately 2000 or less, relative to the initial histogram; otherwise the frequency distribution for this histogram is similar to the first one.
 
-## Mean and median total number of steps taken per day from new dataset
+### 5. Mean and median total number of steps taken per day from new dataset
 
 
 ```r
@@ -226,7 +226,7 @@ median(spd_fill)
 
 # Q4: Are there differences in activity patterns between weekdays and weekends?
 
-## Create a new factor variable in the dataset with two levels - "weekday" and "weekend"
+### 1. Create a new factor variable in the dataset with two levels - "weekday" and "weekend"
 
 
 ```r
@@ -242,7 +242,7 @@ day_flag [day_flag==0]="weekday"
 x_new <- data.frame(cbind(x_fill,day_flag))
 ```
 
-## Generate panel plot containing a time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). 
+### 2. Generate panel plot containing a time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). 
 
 
 ```r

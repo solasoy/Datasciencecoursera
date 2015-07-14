@@ -8,9 +8,9 @@ setwd("C://Users//solasoy//Dropbox//R//Coursera//Reproducible Research")
 x <- read.csv('activity.csv')
 ```
 
-# Q1: What is mean total number of steps taken per day?
+# Q1: What is the mean total number of steps taken per day?
 
-## Total number of steps taken per day
+### 1. Calculate total number of steps taken per day
 
 ```{r,echo=TRUE,result="asis"}
 grp <- split(as.numeric(x$steps),x$date)
@@ -18,7 +18,7 @@ spd <- sapply(grp,sum)
 data.frame(steps_per_day=spd)
 ```
 
-## Histogram of the total number of steps taken each day
+### 2. Plot histogram of the total number of steps taken each day
 
 ```{r,echo=TRUE}
 hist(spd[!is.na(spd)],
@@ -28,7 +28,7 @@ hist(spd[!is.na(spd)],
      xlab = "Total Steps_Per_Day")
 ```
 
-## Mean and median of the total number of steps taken per day
+### 3. Calucluate mean and median of the total number of steps taken per day
 
 ```{r,echo=TRUE,result="asis"}
 mean(spd[!is.na(spd)])
@@ -37,7 +37,7 @@ median(spd[!is.na(spd)])
 
 # Q2: What is the average daily activity pattern?
 
-## Time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
+### 1. Generate time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
 
 
 ```{r,echo=TRUE}
@@ -50,7 +50,7 @@ plot(interval,avg_steps,type="l",
      ylab= "Steps averaged across all days")
 ```
 
-## 5-minute interval on average across all the days in the dataset, containing the maximum number of steps
+### 2. Determine the 5-minute interval that corresponds to the maximum number of steps (averages across all the days in the dataset)
 
 ```{r,echo=TRUE,result="asis"}
 interval[avg_steps == max(avg_steps)]
@@ -58,13 +58,13 @@ interval[avg_steps == max(avg_steps)]
 
 # Q3: Imputing missing values
 
-## Total number of missing values in the dataset 
+### 1. Total number of missing values in the dataset 
 
 ```{r,echo=TRUE,result="asis"}
 length(x[is.na(x[,1]),1])
 ```
 
-## Determine distribution of missing values in dataset
+### 2. Determine distribution of missing values in dataset
 
 ```{r,echo=TRUE}
 v <- unique(x$date)
@@ -73,10 +73,10 @@ for (k in 1:length(h)) h[k] <- length(x[is.na(x$steps) & x$date==v[k],1])
 plot(h,type="b",xlab="Day Number",ylab="Number of Missing Values")
 ```
 
-### The plot above indicates that the missing values are limited to only 8 of the 61 days of this experiment. On each of the 8 days, no steps were recored i.e. all  288 measurements are missing
+#### The plot above indicates that the missing values are limited to only 8 of the 61 days of this experiment. On each of the 8 days, no steps were recored i.e. all  288 measurements are missing
 
 
-## Create new dataset with missing values replaced with median value of steps at each interval across all days
+### 3. Create new dataset with missing values replaced with median value of steps at each interval across all days
 
 ```{r,echo=TRUE}
 median_steps <- sapply(n,median)
@@ -88,7 +88,7 @@ for (j in 1:length(v)) {
 }
 ```
 
-## Generate histogram of total number of steps from new dataset and compare with original
+### 4. Generate histogram of total number of steps from new dataset and compare with original
 
 ```{r,echo=TRUE}
 grp_fill <- split(x_fill$steps,x_fill$date)
@@ -101,9 +101,9 @@ hist(spd_fill,
      xlab = "Steps_Per_Day")
 ```
 
-### From the histogram above, we observe a larger frequency of total number of steps per day that is approximately 2000 or less, relative to the initial histogram; otherwise the frequency distribution for this histogram is similar to the first one.
+#### From the histogram above, we observe a larger frequency of total number of steps per day that is approximately 2000 or less, relative to the initial histogram; otherwise the frequency distribution for this histogram is similar to the first one.
 
-## Mean and median total number of steps taken per day from new dataset
+### 5. Mean and median total number of steps taken per day from new dataset
 
 ```{r,echo=TRUE,result="asis"}
 mean(spd_fill)
@@ -112,7 +112,7 @@ median(spd_fill)
 
 # Q4: Are there differences in activity patterns between weekdays and weekends?
 
-## Create a new factor variable in the dataset with two levels - "weekday" and "weekend"
+### 1. Create a new factor variable in the dataset with two levels - "weekday" and "weekend"
 
 ```{r,echo=TRUE}
 u <- weekdays(as.Date(x_fill$date))
@@ -127,7 +127,7 @@ day_flag [day_flag==0]="weekday"
 x_new <- data.frame(cbind(x_fill,day_flag))
 ```
 
-## Generate panel plot containing a time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). 
+### 2. Generate panel plot containing a time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). 
 
 ```{r,echo=TRUE}
 library(lattice)
