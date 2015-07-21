@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<title>An Evaluation of Severe Weather Data from 1950 - 2011</title>
+
+<script type="text/javascript">
+window.onload = function() {
+  var imgs = document.getElementsByTagName('img'), i, img;
+  for (i = 0; i < imgs.length; i++) {
+    img = imgs[i];
+    // center an image if it is the only element of its parent
+    if (img.parentElement.childElementCount === 1)
+      img.parentElement.style.textAlign = 'center';
+  }
+};
+</script>
+
+<!-- Styles for R syntax highlighter -->
+<style type="text/css">
+   pre .operator,
+   pre .paren {
+     color: rgb(104, 118, 135)
+   }
+
+   pre .literal {
+     color: #990073
+   }
+
+   pre .number {
+     color: #099;
+   }
+
+   pre .comment {
+     color: #998;
+     font-style: italic
+   }
+
+   pre .keyword {
+     color: #900;
+     font-weight: bold
+   }
+
+   pre .identifier {
+     color: rgb(0, 0, 0);
+   }
+
+   pre .string {
+     color: #d14;
+   }
+</style>
+
+<!-- R syntax highlighter -->
+<script type="text/javascript">
+var hljs=new function(){function m(p){return p.replace(/&/gm,"&amp;").replace(/</gm,"&lt;")}function f(r,q,p){return RegExp(q,"m"+(r.cI?"i":"")+(p?"g":""))}function b(r){for(var p=0;p<r.childNodes.length;p++){var q=r.childNodes[p];if(q.nodeName=="CODE"){return q}if(!(q.nodeType==3&&q.nodeValue.match(/\s+/))){break}}}function h(t,s){var p="";for(var r=0;r<t.childNodes.length;r++){if(t.childNodes[r].nodeType==3){var q=t.childNodes[r].nodeValue;if(s){q=q.replace(/\n/g,"")}p+=q}else{if(t.childNodes[r].nodeName=="BR"){p+="\n"}else{p+=h(t.childNodes[r])}}}if(/MSIE [678]/.test(navigator.userAgent)){p=p.replace(/\r/g,"\n")}return p}function a(s){var r=s.className.split(/\s+/);r=r.concat(s.parentNode.className.split(/\s+/));for(var q=0;q<r.length;q++){var p=r[q].replace(/^language-/,"");if(e[p]){return p}}}function c(q){var p=[];(function(s,t){for(var r=0;r<s.childNodes.length;r++){if(s.childNodes[r].nodeType==3){t+=s.childNodes[r].nodeValue.length}else{if(s.childNodes[r].nodeName=="BR"){t+=1}else{if(s.childNodes[r].nodeType==1){p.push({event:"start",offset:t,node:s.childNodes[r]});t=arguments.callee(s.childNodes[r],t);p.push({event:"stop",offset:t,node:s.childNodes[r]})}}}}return t})(q,0);return p}function k(y,w,x){var q=0;var z="";var s=[];function u(){if(y.length&&w.length){if(y[0].offset!=w[0].offset){return(y[0].offset<w[0].offset)?y:w}else{return w[0].event=="start"?y:w}}else{return y.length?y:w}}function t(D){var A="<"+D.nodeName.toLowerCase();for(var B=0;B<D.attributes.length;B++){var C=D.attributes[B];A+=" "+C.nodeName.toLowerCase();if(C.value!==undefined&&C.value!==false&&C.value!==null){A+='="'+m(C.value)+'"'}}return A+">"}while(y.length||w.length){var v=u().splice(0,1)[0];z+=m(x.substr(q,v.offset-q));q=v.offset;if(v.event=="start"){z+=t(v.node);s.push(v.node)}else{if(v.event=="stop"){var p,r=s.length;do{r--;p=s[r];z+=("</"+p.nodeName.toLowerCase()+">")}while(p!=v.node);s.splice(r,1);while(r<s.length){z+=t(s[r]);r++}}}}return z+m(x.substr(q))}function j(){function q(x,y,v){if(x.compiled){return}var u;var s=[];if(x.k){x.lR=f(y,x.l||hljs.IR,true);for(var w in x.k){if(!x.k.hasOwnProperty(w)){continue}if(x.k[w] instanceof Object){u=x.k[w]}else{u=x.k;w="keyword"}for(var r in u){if(!u.hasOwnProperty(r)){continue}x.k[r]=[w,u[r]];s.push(r)}}}if(!v){if(x.bWK){x.b="\\b("+s.join("|")+")\\s"}x.bR=f(y,x.b?x.b:"\\B|\\b");if(!x.e&&!x.eW){x.e="\\B|\\b"}if(x.e){x.eR=f(y,x.e)}}if(x.i){x.iR=f(y,x.i)}if(x.r===undefined){x.r=1}if(!x.c){x.c=[]}x.compiled=true;for(var t=0;t<x.c.length;t++){if(x.c[t]=="self"){x.c[t]=x}q(x.c[t],y,false)}if(x.starts){q(x.starts,y,false)}}for(var p in e){if(!e.hasOwnProperty(p)){continue}q(e[p].dM,e[p],true)}}function d(B,C){if(!j.called){j();j.called=true}function q(r,M){for(var L=0;L<M.c.length;L++){if((M.c[L].bR.exec(r)||[null])[0]==r){return M.c[L]}}}function v(L,r){if(D[L].e&&D[L].eR.test(r)){return 1}if(D[L].eW){var M=v(L-1,r);return M?M+1:0}return 0}function w(r,L){return L.i&&L.iR.test(r)}function K(N,O){var M=[];for(var L=0;L<N.c.length;L++){M.push(N.c[L].b)}var r=D.length-1;do{if(D[r].e){M.push(D[r].e)}r--}while(D[r+1].eW);if(N.i){M.push(N.i)}return f(O,M.join("|"),true)}function p(M,L){var N=D[D.length-1];if(!N.t){N.t=K(N,E)}N.t.lastIndex=L;var r=N.t.exec(M);return r?[M.substr(L,r.index-L),r[0],false]:[M.substr(L),"",true]}function z(N,r){var L=E.cI?r[0].toLowerCase():r[0];var M=N.k[L];if(M&&M instanceof Array){return M}return false}function F(L,P){L=m(L);if(!P.k){return L}var r="";var O=0;P.lR.lastIndex=0;var M=P.lR.exec(L);while(M){r+=L.substr(O,M.index-O);var N=z(P,M);if(N){x+=N[1];r+='<span class="'+N[0]+'">'+M[0]+"</span>"}else{r+=M[0]}O=P.lR.lastIndex;M=P.lR.exec(L)}return r+L.substr(O,L.length-O)}function J(L,M){if(M.sL&&e[M.sL]){var r=d(M.sL,L);x+=r.keyword_count;return r.value}else{return F(L,M)}}function I(M,r){var L=M.cN?'<span class="'+M.cN+'">':"";if(M.rB){y+=L;M.buffer=""}else{if(M.eB){y+=m(r)+L;M.buffer=""}else{y+=L;M.buffer=r}}D.push(M);A+=M.r}function G(N,M,Q){var R=D[D.length-1];if(Q){y+=J(R.buffer+N,R);return false}var P=q(M,R);if(P){y+=J(R.buffer+N,R);I(P,M);return P.rB}var L=v(D.length-1,M);if(L){var O=R.cN?"</span>":"";if(R.rE){y+=J(R.buffer+N,R)+O}else{if(R.eE){y+=J(R.buffer+N,R)+O+m(M)}else{y+=J(R.buffer+N+M,R)+O}}while(L>1){O=D[D.length-2].cN?"</span>":"";y+=O;L--;D.length--}var r=D[D.length-1];D.length--;D[D.length-1].buffer="";if(r.starts){I(r.starts,"")}return R.rE}if(w(M,R)){throw"Illegal"}}var E=e[B];var D=[E.dM];var A=0;var x=0;var y="";try{var s,u=0;E.dM.buffer="";do{s=p(C,u);var t=G(s[0],s[1],s[2]);u+=s[0].length;if(!t){u+=s[1].length}}while(!s[2]);if(D.length>1){throw"Illegal"}return{r:A,keyword_count:x,value:y}}catch(H){if(H=="Illegal"){return{r:0,keyword_count:0,value:m(C)}}else{throw H}}}function g(t){var p={keyword_count:0,r:0,value:m(t)};var r=p;for(var q in e){if(!e.hasOwnProperty(q)){continue}var s=d(q,t);s.language=q;if(s.keyword_count+s.r>r.keyword_count+r.r){r=s}if(s.keyword_count+s.r>p.keyword_count+p.r){r=p;p=s}}if(r.language){p.second_best=r}return p}function i(r,q,p){if(q){r=r.replace(/^((<[^>]+>|\t)+)/gm,function(t,w,v,u){return w.replace(/\t/g,q)})}if(p){r=r.replace(/\n/g,"<br>")}return r}function n(t,w,r){var x=h(t,r);var v=a(t);var y,s;if(v){y=d(v,x)}else{return}var q=c(t);if(q.length){s=document.createElement("pre");s.innerHTML=y.value;y.value=k(q,c(s),x)}y.value=i(y.value,w,r);var u=t.className;if(!u.match("(\\s|^)(language-)?"+v+"(\\s|$)")){u=u?(u+" "+v):v}if(/MSIE [678]/.test(navigator.userAgent)&&t.tagName=="CODE"&&t.parentNode.tagName=="PRE"){s=t.parentNode;var p=document.createElement("div");p.innerHTML="<pre><code>"+y.value+"</code></pre>";t=p.firstChild.firstChild;p.firstChild.cN=s.cN;s.parentNode.replaceChild(p.firstChild,s)}else{t.innerHTML=y.value}t.className=u;t.result={language:v,kw:y.keyword_count,re:y.r};if(y.second_best){t.second_best={language:y.second_best.language,kw:y.second_best.keyword_count,re:y.second_best.r}}}function o(){if(o.called){return}o.called=true;var r=document.getElementsByTagName("pre");for(var p=0;p<r.length;p++){var q=b(r[p]);if(q){n(q,hljs.tabReplace)}}}function l(){if(window.addEventListener){window.addEventListener("DOMContentLoaded",o,false);window.addEventListener("load",o,false)}else{if(window.attachEvent){window.attachEvent("onload",o)}else{window.onload=o}}}var e={};this.LANGUAGES=e;this.highlight=d;this.highlightAuto=g;this.fixMarkup=i;this.highlightBlock=n;this.initHighlighting=o;this.initHighlightingOnLoad=l;this.IR="[a-zA-Z][a-zA-Z0-9_]*";this.UIR="[a-zA-Z_][a-zA-Z0-9_]*";this.NR="\\b\\d+(\\.\\d+)?";this.CNR="\\b(0[xX][a-fA-F0-9]+|(\\d+(\\.\\d*)?|\\.\\d+)([eE][-+]?\\d+)?)";this.BNR="\\b(0b[01]+)";this.RSR="!|!=|!==|%|%=|&|&&|&=|\\*|\\*=|\\+|\\+=|,|\\.|-|-=|/|/=|:|;|<|<<|<<=|<=|=|==|===|>|>=|>>|>>=|>>>|>>>=|\\?|\\[|\\{|\\(|\\^|\\^=|\\||\\|=|\\|\\||~";this.ER="(?![\\s\\S])";this.BE={b:"\\\\.",r:0};this.ASM={cN:"string",b:"'",e:"'",i:"\\n",c:[this.BE],r:0};this.QSM={cN:"string",b:'"',e:'"',i:"\\n",c:[this.BE],r:0};this.CLCM={cN:"comment",b:"//",e:"$"};this.CBLCLM={cN:"comment",b:"/\\*",e:"\\*/"};this.HCM={cN:"comment",b:"#",e:"$"};this.NM={cN:"number",b:this.NR,r:0};this.CNM={cN:"number",b:this.CNR,r:0};this.BNM={cN:"number",b:this.BNR,r:0};this.inherit=function(r,s){var p={};for(var q in r){p[q]=r[q]}if(s){for(var q in s){p[q]=s[q]}}return p}}();hljs.LANGUAGES.cpp=function(){var a={keyword:{"false":1,"int":1,"float":1,"while":1,"private":1,"char":1,"catch":1,"export":1,virtual:1,operator:2,sizeof:2,dynamic_cast:2,typedef:2,const_cast:2,"const":1,struct:1,"for":1,static_cast:2,union:1,namespace:1,unsigned:1,"long":1,"throw":1,"volatile":2,"static":1,"protected":1,bool:1,template:1,mutable:1,"if":1,"public":1,friend:2,"do":1,"return":1,"goto":1,auto:1,"void":2,"enum":1,"else":1,"break":1,"new":1,extern:1,using:1,"true":1,"class":1,asm:1,"case":1,typeid:1,"short":1,reinterpret_cast:2,"default":1,"double":1,register:1,explicit:1,signed:1,typename:1,"try":1,"this":1,"switch":1,"continue":1,wchar_t:1,inline:1,"delete":1,alignof:1,char16_t:1,char32_t:1,constexpr:1,decltype:1,noexcept:1,nullptr:1,static_assert:1,thread_local:1,restrict:1,_Bool:1,complex:1},built_in:{std:1,string:1,cin:1,cout:1,cerr:1,clog:1,stringstream:1,istringstream:1,ostringstream:1,auto_ptr:1,deque:1,list:1,queue:1,stack:1,vector:1,map:1,set:1,bitset:1,multiset:1,multimap:1,unordered_set:1,unordered_map:1,unordered_multiset:1,unordered_multimap:1,array:1,shared_ptr:1}};return{dM:{k:a,i:"</",c:[hljs.CLCM,hljs.CBLCLM,hljs.QSM,{cN:"string",b:"'\\\\?.",e:"'",i:"."},{cN:"number",b:"\\b(\\d+(\\.\\d*)?|\\.\\d+)(u|U|l|L|ul|UL|f|F)"},hljs.CNM,{cN:"preprocessor",b:"#",e:"$"},{cN:"stl_container",b:"\\b(deque|list|queue|stack|vector|map|set|bitset|multiset|multimap|unordered_map|unordered_set|unordered_multiset|unordered_multimap|array)\\s*<",e:">",k:a,r:10,c:["self"]}]}}}();hljs.LANGUAGES.r={dM:{c:[hljs.HCM,{cN:"number",b:"\\b0[xX][0-9a-fA-F]+[Li]?\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\b\\d+(?:[eE][+\\-]?\\d*)?L\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\b\\d+\\.(?!\\d)(?:i\\b)?",e:hljs.IMMEDIATE_RE,r:1},{cN:"number",b:"\\b\\d+(?:\\.\\d*)?(?:[eE][+\\-]?\\d*)?i?\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\.\\d+(?:[eE][+\\-]?\\d*)?i?\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"keyword",b:"(?:tryCatch|library|setGeneric|setGroupGeneric)\\b",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\.\\.\\.",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\.\\.\\d+(?![\\w.])",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\b(?:function)",e:hljs.IMMEDIATE_RE,r:2},{cN:"keyword",b:"(?:if|in|break|next|repeat|else|for|return|switch|while|try|stop|warning|require|attach|detach|source|setMethod|setClass)\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"literal",b:"(?:NA|NA_integer_|NA_real_|NA_character_|NA_complex_)\\b",e:hljs.IMMEDIATE_RE,r:10},{cN:"literal",b:"(?:NULL|TRUE|FALSE|T|F|Inf|NaN)\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"identifier",b:"[a-zA-Z.][a-zA-Z0-9._]*\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"operator",b:"<\\-(?!\\s*\\d)",e:hljs.IMMEDIATE_RE,r:2},{cN:"operator",b:"\\->|<\\-",e:hljs.IMMEDIATE_RE,r:1},{cN:"operator",b:"%%|~",e:hljs.IMMEDIATE_RE},{cN:"operator",b:">=|<=|==|!=|\\|\\||&&|=|\\+|\\-|\\*|/|\\^|>|<|!|&|\\||\\$|:",e:hljs.IMMEDIATE_RE,r:0},{cN:"operator",b:"%",e:"%",i:"\\n",r:1},{cN:"identifier",b:"`",e:"`",r:0},{cN:"string",b:'"',e:'"',c:[hljs.BE],r:0},{cN:"string",b:"'",e:"'",c:[hljs.BE],r:0},{cN:"paren",b:"[[({\\])}]",e:hljs.IMMEDIATE_RE,r:0}]}};
+hljs.initHighlightingOnLoad();
+</script>
+
+
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 13px;
+}
+
+body {
+  max-width: 800px;
+  margin: auto;
+  padding: 1em;
+  line-height: 20px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 {
+   font-size:2.2em;
+}
+
+h2 {
+   font-size:1.8em;
+}
+
+h3 {
+   font-size:1.4em;
+}
+
+h4 {
+   font-size:1.0em;
+}
+
+h5 {
+   font-size:0.9em;
+}
+
+h6 {
+   font-size:0.8em;
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre, img {
+  max-width: 100%;
+}
+pre {
+  overflow-x: auto;
+}
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code {
+  font-size: 92%;
+  border: 1px solid #ccc;
+}
+
+code[class] {
+  background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * {
+      background: transparent !important;
+      color: black !important;
+      filter:none !important;
+      -ms-filter: none !important;
+   }
+
+   body {
+      font-size:12pt;
+      max-width:100%;
+   }
+
+   a, a:visited {
+      text-decoration: underline;
+   }
+
+   hr {
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote {
+      padding-right: 1em;
+      page-break-inside: avoid;
+   }
+
+   tr, img {
+      page-break-inside: avoid;
+   }
+
+   img {
+      max-width: 100% !important;
+   }
+
+   @page :left {
+      margin: 15mm 20mm 15mm 10mm;
+   }
+
+   @page :right {
+      margin: 15mm 10mm 15mm 20mm;
+   }
+
+   p, h2, h3 {
+      orphans: 3; widows: 3;
+   }
+
+   h2, h3 {
+      page-break-after: avoid;
+   }
+}
+</style>
+
+
+
+</head>
+
+<body>
+<h1>An Evaluation of Severe Weather Data from 1950 - 2011</h1>
+
+<h2>Synopsis:</h2>
+
+<h3>This report evaluates weather data acquired over 60 years (1950-2011) by the National Oceanic and Atmospheric Administration (NOAA). The analysis is narrowly focused on determining (1) the weather events that are most harmful to human health and (2) which weather events have the greatest ecomonic consequences across the United States. The analysis shows that 20 of the 985 unique weather events recorded over the measurement period account for 95% of all weather-related casualties (including injuries and fatalities) in the United States. Furthermore, 11 specific weather events are the most consequential with respect to property and crop damage across all 50 states.</h3>
+
+<h2>Data Processing:</h2>
+
+<p>###The NOAA database was downloaded from web via the John Hopkins Coursera portal and stored on the computer with which the analysis was done. The .csv file (repdata-data-StormData.csv) was then loaded in the R environment as follows:</p>
+
+<pre><code class="r">setwd(&quot;C://Users//solasoy//Dropbox//R//Coursera//Reproducible Research&quot;)
+x &lt;- read.csv(file=&#39;repdata-data-StormData.csv&#39;,
+              colClasses=&quot;character&quot;)
+</code></pre>
+
+<p>###Next, for each of the 985 unique weather events, the number of total number of fatalities and injuries across the data sampling period was summed to give the number of casualties stemming from this weather activity.</p>
+
+<pre><code class="r">x$INJURIES &lt;- as.numeric(x$INJURIES)
+x$FATALITIES &lt;- as.numeric(x$FATALITIES)
+
+u &lt;- unique(x$EVTYPE) # unique weather events
+y &lt;- matrix(0,length(u),2)
+for (j in 1:length(u)) {
+  y[j,] &lt;- colSums(x[x$EVTYPE == u[j],c(&quot;FATALITIES&quot;,&quot;INJURIES&quot;)],na.rm=TRUE)
+}
+
+index &lt;- order(as.numeric(rowSums(y)),as.numeric(y[,2]),as.numeric(y[,1]),decreasing=TRUE)
+df &lt;- data.frame(EVENT=u[index],FATALITIES=as.numeric(y[index,1]),
+    INJURIES=as.numeric(y[index,2]),CASUALTY_COUNT=as.numeric(rowSums(y[index,])),
+    PERCENT_OF_TOTAL=100*as.numeric(rowSums(y[index,]))/sum(as.numeric(rowSums(y))))
+</code></pre>
+
+<p>###An event severity index for each weather event was determined by taking the log of all casualty numbers for, i.e. </p>
+
+<pre><code class="r">event_severity_index &lt;- log(df$CASUALTY_COUNT)
+</code></pre>
+
+<h3>The casualty data arising from all the monitored weather events were captured in a data frame. The top 20 weather events with respect to casualty levels, are as follows:</h3>
+
+<pre><code class="r">head(df,20)
+</code></pre>
+
+<pre><code>##                 EVENT FATALITIES INJURIES CASUALTY_COUNT PERCENT_OF_TOTAL
+## 1             TORNADO       5633    91346          96979       62.2966089
+## 2      EXCESSIVE HEAT       1903     6525           8428        5.4139125
+## 3           TSTM WIND        504     6957           7461        4.7927386
+## 4               FLOOD        470     6789           7259        4.6629795
+## 5           LIGHTNING        816     5230           6046        3.8837820
+## 6                HEAT        937     2100           3037        1.9508842
+## 7         FLASH FLOOD        978     1777           2755        1.7697353
+## 8           ICE STORM         89     1975           2064        1.3258561
+## 9   THUNDERSTORM WIND        133     1488           1621        1.0412853
+## 10       WINTER STORM        206     1321           1527        0.9809023
+## 11          HIGH WIND        248     1137           1385        0.8896854
+## 12               HAIL         15     1361           1376        0.8839041
+## 13  HURRICANE/TYPHOON         64     1275           1339        0.8601363
+## 14         HEAVY SNOW        127     1021           1148        0.7374432
+## 15           WILDFIRE         75      911            986        0.6333789
+## 16 THUNDERSTORM WINDS         64      908            972        0.6243857
+## 17           BLIZZARD        101      805            906        0.5819892
+## 18                FOG         62      734            796        0.5113282
+## 19        RIP CURRENT        368      232            600        0.3854233
+## 20   WILD/FOREST FIRE         12      545            557        0.3578013
+</code></pre>
+
+<p>###The following plot tracks the event severity index by weather type, and shows the most consequential weather events:</p>
+
+<pre><code class="r">par(mar = c(7, 4, 4, 2) + 0.1) ## Increase bottom margin to make room for rotated labels
+plot(event_severity_index[1:20], xaxt = &quot;n&quot;, pch=19,
+     type=  &quot;b&quot;,
+     xlab = &quot;&quot;,
+     ylab=&quot;Event Severity Index&quot;,
+     main=&quot;Top 20 most harmful weather events to humans&quot;)
+axis(1, labels = FALSE)
+labels &lt;- df$EVENT[1:20]
+text(1:20,par(&quot;usr&quot;)[3] - 0.25, srt = 45, adj = 1,
+     labels = labels, xpd = TRUE)
+</code></pre>
+
+<p><img src="figure/Event%20severity%20index%20versus%20weather%20event-1.png" alt="plot of chunk Event severity index versus weather event"/> </p>
+
+<p>###The following plot highlights the percentage of all weather-related casualties in the last 60 years that derive from each of the top 20 weather events:</p>
+
+<pre><code class="r">par(mar = c(7, 4, 4, 2) + 0.1) 
+with(df,plot(PERCENT_OF_TOTAL[1:20],pch=19,
+      ylab=&quot;Percent of Total Casualties&quot;,
+      xlab=NA,
+      type=&quot;b&quot;, xaxt = &quot;n&quot;,
+      main=&quot;Weather events responsible for 94.6%\nof total number of casualties&quot;))
+
+axis(1, labels = FALSE)
+labels &lt;- df$EVENT[1:20]
+text(1:20,par(&quot;usr&quot;)[3] - 0.25, srt = 45, adj = 1,
+     labels = labels, xpd = TRUE)
+</code></pre>
+
+<p><img src="figure/Percent%20of%20total%20casualties%20versus%20weather%20event-1.png" alt="plot of chunk Percent of total casualties versus weather event"/> </p>
+
+<p>###Next, property and crop damage data were used to evaluate the ecomomic consequences of weather events. Specifically, data from each of the 50 states was evaluated and the weather event resulting in the highest monetary loss from property and crop damage was determined. The analysis was carried out as follows:</p>
+
+<pre><code class="r">xt = x # assign NOAA dataset to new variable xt and use the variables PROPDMGEXP and CROPDMGEXP to filter data
+f1 &lt;- union(union(grep(&quot;K&quot;,xt$PROPDMGEXP),grep(&quot;B&quot;,xt$PROPDMGEXP)),grep(&quot;M&quot;,xt$PROPDMGEXP))
+f2 &lt;- union(union(grep(&quot;K&quot;,xt$CROPDMGEXP),grep(&quot;B&quot;,xt$CROPDMGEXP)),grep(&quot;M&quot;,xt$CROPDMGEXP))
+f &lt;- union(f1,f2)
+xt &lt;- x[f,]
+</code></pre>
+
+<pre><code class="r">v &lt;- unique(xt$STATE)
+v &lt;- c(v[1:3],&quot;AK&quot;,v[4:49]) # 50 states
+z &lt;- data.frame(matrix(ncol = 3, nrow = length(v))) 
+colnames(z) &lt;- c(&quot;STATE&quot;,&quot;EVENT&quot;,&quot;TOTAL_DAMAGES (TRILLION $)&quot;)
+</code></pre>
+
+<h3>Retrieve property and crop damage amounts for the event with the larget economic consequence for each state</h3>
+
+<pre><code class="r">for (j in 1:length(v)) {
+
+  # Retrieve crop damage data
+  select &lt;- xt$STATE == v[j] &amp; (xt$PROPDMG &gt; 0 | xt$CROPDMG &gt; 0)
+  df &lt;- xt[select,c(&quot;EVTYPE&quot;, &quot;PROPDMG&quot;, &quot;PROPDMGEXP&quot;,&quot;CROPDMG&quot;, &quot;CROPDMGEXP&quot;)]
+  df$PROPDMG &lt;- as.numeric(df$PROPDMG)
+  df$CROPDMG &lt;- as.numeric(df$CROPDMG)
+  df$PROPDMG[df$PROPDMGEXP == &quot;K&quot;] &lt;- array(df$PROPDMG * 1000,length(df$PROPDMG[df$PROPDMGEXP == &quot;K&quot;]))
+  df$PROPDMG[df$PROPDMGEXP == &quot;M&quot;] &lt;- array(df$PROPDMG * 1000000,length(df$PROPDMG[df$PROPDMGEXP == &quot;M&quot;]))
+  df$PROPDMG[df$PROPDMGEXP == &quot;B&quot;] &lt;- array(df$PROPDMG * 1000000000,length(df$PROPDMG[df$PROPDMGEXP == &quot;B&quot;]))
+
+  df$CROPDMG[df$CROPDMGEXP == &quot;K&quot;] &lt;- array(df$CROPDMG * 1000,length(df$CROPDMG[df$CROPDMGEXP == &quot;K&quot;]))
+  df$CROPDMG[df$CROPDMGEXP == &quot;M&quot;] &lt;- array(df$CROPDMG * 1000000,length(df$CROPDMG[df$CROPDMGEXP == &quot;M&quot;]))
+  df$CROPDMG[df$CROPDMGEXP == &quot;B&quot;] &lt;- array(df$CROPDMG * 1000000000,length(df$CROPDMG[df$CROPDMGEXP == &quot;B&quot;]))
+
+  # Calculate total property and crop damage for each event type in state j
+  y2 &lt;- matrix(0,length(u),1) 
+  for (k in 1:length(u)) {
+    y2[k] &lt;- sum(colSums(df[df$EVTYPE == u[k],c(&quot;PROPDMG&quot;,&quot;CROPDMG&quot;)],na.rm=TRUE))
+  }
+
+  # Sort results to determine event with largest property damamge in state j
+  select &lt;- order(y2,u,decreasing=TRUE)
+
+  # Store results in data frame with property damage amounts in Trillions
+  z[j,] &lt;- c(v[j],u[select[1]],y2[select[1]]/1000000000000)
+
+}
+</code></pre>
+
+<h3>The data that ties the largest economic losses to the a specific type of weather event in all of the 50 states, is summarized in the following table:</h3>
+
+<pre><code>##    STATE             EVENT TOTAL_DAMAGES (TRILLION $)
+## 1     AL       FLASH FLOOD               26.002779556
+## 2     AZ THUNDERSTORM WIND               0.9025775262
+## 3     AR           TORNADO             16.31992722732
+## 4     AK             FLOOD              1.75501066194
+## 5     CA             FLOOD                10.86876287
+## 6     CO             FLOOD              0.50253144065
+## 7     CT           TORNADO              1.08750403662
+## 8     DE      WINTER STORM                 0.77750065
+## 9     FL HURRICANE/TYPHOON              327.832560205
+## 10    GA           TORNADO             14.76013881167
+## 11    HI       FLASH FLOOD                0.550003009
+## 12    ID         HIGH WIND               0.0500033363
+## 13    IL       RIVER FLOOD                    250.275
+## 14    IN           TORNADO              9.73344224889
+## 15    IA           TORNADO             15.67039384016
+## 16    KS           TORNADO              6.00351703467
+## 17    KY           TORNADO             10.81563304168
+## 18    LA HURRICANE/TYPHOON               500.02775003
+## 19    ME             FLOOD               0.4875347637
+## 20    MD           TORNADO               0.8630197245
+## 21    MA             FLOOD                1.708298835
+## 22    MI           TORNADO              7.30657084555
+## 23    MN           TORNADO              8.14937417664
+## 24    MS       STORM SURGE                25.25500103
+## 25    MO           TORNADO            261.31492078522
+## 26    MT           TORNADO              0.57775985115
+## 27    NE           TORNADO              6.68829547561
+## 28    NV             FLOOD                0.500035245
+## 29    NH             FLOOD              1.03526836327
+## 30    NJ             FLOOD                13.79450444
+## 31    NM              HAIL              0.53078701485
+## 32    NY       FLASH FLOOD               6.9473207615
+## 33    NC         HURRICANE               26.527750841
+## 34    ND             FLOOD              251.682810413
+## 35    OH       FLASH FLOOD              13.8558500518
+## 36    OK           TORNADO             6.970313047233
+## 37    OR             FLOOD               2.0515037075
+## 38    PA             FLOOD                8.305817147
+## 39    RI             FLOOD                 1.36000046
+## 40    SC           TORNADO              3.99201642519
+## 41    SD              HAIL              1.28759211782
+## 42    TN             FLOOD              30.2025435913
+## 43    TX         HURRICANE               250.30100076
+## 44    UT       FLASH FLOOD               0.2552593792
+## 45    VT       FLASH FLOOD                1.237518889
+## 46    VA           TORNADO               4.5405790273
+## 47    WA             FLOOD                4.524340718
+## 48    WV       FLASH FLOOD               3.2671642861
+## 49    WI           TORNADO             13.19070217908
+## 50    WY              HAIL               0.0300365217
+</code></pre>
+
+<p>##Results:
+###The analysis shows that 94.6% of all weather-related casualties from 1950 - 2011 are caused by 20 of the 985 types of weather events that are tracked by NOAA. As for the ecomomic consequences of bad weather, the following 11 weather events: flash floods, thunderstorm wind, tornados, floods, winter storms, hurricane/typhoons, high winds, river floods, storm surges, hail and hurricanes account for the most amount of property and/or crop damage in all 50 states.</p>
+
+</body>
+
+</html>
