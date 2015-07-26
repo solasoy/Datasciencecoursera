@@ -1,7 +1,7 @@
 An Evaluation of Severe Weather Data from 1950 - 2011
 ==============================================================================
 ## Synopsis: 
-### This report evaluates weather data acquired over 60 years (1950-2011) by the National Oceanic and Atmospheric Administration (NOAA). The analysis is narrowly focused on determining (1) the weather events that are most harmful to human health and (2) which weather events have the greatest ecomonic consequences across the United States. The analysis shows that Tornados are the largest source of human casualties (including injuries and fatalities) from weather related activity, accounting for 64% of casualties over the sampling period. Furthermore, the analysis indicates that rains and floods (and related activity), are the reason for most of the weather-related economic loss in half of all the 50 states.
+### This report evaluates weather data acquired over 60 years (1950-2011) by the National Oceanic and Atmospheric Administration (NOAA). The analysis is narrowly focused on determining (1) the weather events that are most harmful to human health and (2) which weather events have the greatest ecomonic consequences across the United States. The analysis shows that Tornados are the largest source of human casualties (including injuries and fatalities) from weather related activity, accounting for 64% of casualties over the sampling period. Furthermore, the analysis indicates that flooding is the reason for most of the weather-related economic loss in half of all the 50 states.
 
 ## Data Processing: 
 ###The NOAA database was downloaded from web via the John Hopkins DataScience-Coursera site and stored on the computer with which the analysis was done. The .csv file (repdata-data-StormData.csv) consisting of 902297 rows and 37 columns, was then loaded into the R environment as follows:
@@ -12,16 +12,8 @@ setwd("C://Users//solasoy//Dropbox//R//Coursera//Reproducible Research")
 x <- read.csv(file='repdata-data-StormData.csv',
               colClasses="character")
 ```
-###The 985 weather events that were recorded over time were found to contain repititions and other redundant information. Accordingly the data required some filtering followed by the categorization of weather activity into distinct groups to facilitate further analysis. Accordingly, the following 8 weather categories were defined for all weather events:
+###The 985 weather events that were recorded over time were found to contain repititions and other redundant information. Accordingly the data required some filtering followed by the categorization of weather activity into distinct groups to facilitate further analysis. THe NOAA has identified 48 groups of weather event categories (pg 6 of the cheat sheet provided by the NOAA). To the extent that it was feasible, all the listed wheather events were grouped into these categories and the rest removed, yielding a final weather weather event count of 656 or 890365 rows of data.
 
-#####1. Marine Activity - Hurricanes, Typhoons, Tropical Depressions etc
-#####2. Winter Weather - Blizzards, Snow storms, freezing rain, etc
-#####3. Rain and Floods - Sustained Precipitation
-#####4. Thunderstorms - Specifically wind gusts and lightning with some rain
-#####5. Hail
-#####6. Tornado -including waterspouts
-#####7. Fire - Forest fires, wild fires etc
-#####8. High Temperature with Dry Conditions - Excessive heat, drought conditons
 
 ### The data pre-processing step was carried out as follows:
 
@@ -32,100 +24,118 @@ x$FATALITIES <- as.numeric(x$FATALITIES)
 
 u <- unique(x$EVTYPE)
 
-# Consolidate event types into coherent groups
+# Consolidate event types 48 categories defined by NOAA
+# First 24 ---
+a1 <- union(u[grepl("Tide",u,ignore.case=TRUE)],u[grepl("Astronomical",u,ignore.case=TRUE)])
+a2 <- u[grepl("Avalanche",u,ignore.case=TRUE)]
+a3 <- u[grepl("Blizzard",u,ignore.case=TRUE)]
+a4 <- u[grepl("Coastal Flood",u,ignore.case=TRUE)]
+a5 <- union(u[grepl("Cold Chill",u,ignore.case=TRUE)],u[grepl("Wind Chill",u,ignore.case=TRUE)])
+a5 <- a5[!grepl("Extreme",a5,ignore.case=TRUE)]
+a6 <- u[grepl("Debris Flow",u,ignore.case=TRUE)]
+a7 <- u[grepl("Dense Fog",u,ignore.case=TRUE)]
+a8 <- u[grepl("Dense Smoke",u,ignore.case=TRUE)]
+a9 <- u[grepl("Drought",u,ignore.case=TRUE)]
+a10 <- u[grepl("Dust Devil",u,ignore.case=TRUE)]
+a11 <- u[grepl("Dust Storm",u,ignore.case=TRUE)]
+a12 <- u[grepl("Excessive Heat",u,ignore.case=TRUE)]
+a13 <- union(u[grepl("Extreme Cold Chill",u,ignore.case=TRUE)],u[grepl("Extreme Wind Chill",u,ignore.case=TRUE)])
+a14 <- u[grepl("Flash Flood",u,ignore.case=TRUE)]
+a15 <- u[grepl("Flood",u,ignore.case=TRUE)]
+a15 <-  a15[!grepl("Lakeshore",a15,ignore.case=TRUE)]
+a16 <- union(u[grepl("Frost",u,ignore.case=TRUE)],u[grepl("Freeze",u,ignore.case=TRUE)])
+a17 <- u[grepl("Funnel Cloud",u,ignore.case=TRUE)]
+a18 <- u[grepl("Freezing Fog",u,ignore.case=TRUE)]
+a19 <- u[grepl("Hail",u,ignore.case=TRUE)]
+a19 <-  a19[!grepl("Marine",a19,ignore.case=TRUE)]
+a20 <- u[grepl("Heat",u,ignore.case=TRUE)]
+a21 <- u[grepl("Heavy Rain",u,ignore.case=TRUE)]
+a22 <- u[grepl("Heavy Snow",u,ignore.case=TRUE)]
+a23 <- u[grepl("High Surf",u,ignore.case=TRUE)]
+a24 <- u[grepl("High Wind",u,ignore.case=TRUE)]
 
-# Marine_storms -------------------------------------------------------------
-a <- union(union(union(union(union(u[grepl("HURRICANE",u,ignore.case=TRUE)],
-    u[grepl("TYPHOON",u,ignore.case=TRUE)]),u[grepl("TSUNAMI",u,ignore.case=TRUE)]),
-    u[grepl("Swell",u,ignore.case=TRUE)]),u[grepl("Tropical Depression",u,ignore.case=TRUE)]),
-    u[grepl("Surge",u,ignore.case=TRUE)])
-    
+# Last 24......
+b1 <- union(u[grepl("Hurricane",u,ignore.case=TRUE)],u[grepl("Typhoon",u,ignore.case=TRUE)])
+b2 <- u[grepl("Ice Storm",u,ignore.case=TRUE)]
+b3 <- u[grepl("Lake effect snow",u,ignore.case=TRUE)]
+b4 <- u[grepl("Lakeshore Flood",u,ignore.case=TRUE)]
+b5 <- union(u[grepl("Lightning",u,ignore.case=TRUE)],u[grepl("Wind Chill",u,ignore.case=TRUE)])
+b6  <- u[grepl("Marine Hail",u,ignore.case=TRUE)]
+b7 <- u[grepl("Marine High Wind",u,ignore.case=TRUE)]
+b8 <- u[grepl("Marine Strong Wind",u,ignore.case=TRUE)]
+b9 <- u[grepl("Marine Thunderstorm Wind",u,ignore.case=TRUE)]
+b10 <- u[grepl("Rip Current",u,ignore.case=TRUE)]
+b11 <- u[grepl("Sieche",u,ignore.case=TRUE)]
+b12 <- u[grepl("Sleet",u,ignore.case=TRUE)]
+b13 <- u[grepl("Storm Surge/Tide",u,ignore.case=TRUE)]
+b14 <- u[grepl("Strong Wind",u,ignore.case=TRUE)]
+b15 <- union(u[grepl("Thunderstorm Wind",u,ignore.case=TRUE)],u[grepl("TSTM Wind",u,ignore.case=TRUE)])
+b16 <- u[grepl("Tornado",u,ignore.case=TRUE)]
+b17 <- u[grepl("Tropical Depression",u,ignore.case=TRUE)]
+b18 <- u[grepl("Tropical Storm",u,ignore.case=TRUE)]
+b19 <- u[grepl("Tsunami",u,ignore.case=TRUE)]
+b20 <- u[grepl("Volcanic Ash",u,ignore.case=TRUE)]
+b21 <- u[grepl("Waterspout",u,ignore.case=TRUE)]
+b22 <- u[grepl("WildFire",u,ignore.case=TRUE)]
+b23 <- u[grepl("Winter Storm",u,ignore.case=TRUE)]
+b24 <- u[grepl("Winter Weather",u,ignore.case=TRUE)]
+# 
 
-# Winter_weather -------------
-b <- union(union(union(union(union(union(union(union(union(union(union(union(u[grepl("SNOW",u,ignore.case=TRUE)],
-      u[grepl("BLIZZARD",u,ignore.case=TRUE)]),u[grepl("CHILL",u,ignore.case=TRUE)]),
-      u[grepl("COLD",u,ignore.case=TRUE)]),u[grepl("Frost",u,ignore.case=TRUE)]),
-      u[grepl("wintry",u,ignore.case=TRUE)]),u[grepl("Freezing",u,ignore.case=TRUE)]),
-      u[grepl("Freeze",u,ignore.case=TRUE)]),u[grepl("ICE",u,ignore.case=TRUE)]),
-      u[grepl("hypothermia",u,ignore.case=TRUE)]),u[grepl("fog",u,ignore.case=TRUE)]),
-      u[grepl("Winter",u,ignore.case=TRUE)]),u[grepl("Avalanche",u,ignore.case=TRUE)])
+x_filtered <- x[x$EVTYPE %in% c(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,
+                                a19,a20,a21,a22,a23,a24,b1,b2,b3,b4,b5,b6,b7,b8,b9,b10,b11,b12,b13,
+                                b14,b15,b16,b17,b18,b19,b20,b21,b22,b23,b24),]
 
-
-# Rain_and_Flood-------------------------------------
-c <- union(u[grepl("RAIN",u,ignore.case=TRUE)],u[grepl("FLOOD",u,ignore.case=TRUE)])
-c <- c[!grepl("WIND",c,ignore.case=TRUE)]
-c <- c[!grepl("FREEZING RAIN",c,ignore.case=TRUE)]
-c <- c[!grepl("SNOW",c,ignore.case=TRUE)]
-c <- c[!grepl("ice",c,ignore.case=TRUE)]
-c <- c[!grepl("lightning",c,ignore.case=TRUE)]
-
-
-# Fire ---------------------
-d <- union(u[grepl("FIRE",u,ignore.case=TRUE)],u[grepl("Smoke",u,ignore.case=TRUE)])
-
-
-# Thunderstorm_Wind_and_Lightning ------------------------
-e <- union(union(union(u[grepl("WIND",u,ignore.case=TRUE)],
-    u[grepl("THUNDERSTORM",u,ignore.case=TRUE)]), u[grepl("TSTM",u,ignore.case=TRUE)]),
-    u[grepl("lightning",u,ignore.case=TRUE)])
-
-e <- e[!grepl("WINDCHILL",e,ignore.case=TRUE)]
-e <- e[!grepl("RAIN",e,ignore.case=TRUE)]
-e <- e[!grepl("FLOOD",e,ignore.case=TRUE)]
-e <- e[!grepl("SNOW",e,ignore.case=TRUE)]
-e <- e[!grepl("CHILL",e,ignore.case=TRUE)]
-e <- e[!grepl("HURRICANE",e,ignore.case=TRUE)]
-e <- e[!grepl("Tornado",e,ignore.case=TRUE)]
-e <- e[!grepl("hail",e,ignore.case=TRUE)]
-e <- e[!grepl("Blizzard",e,ignore.case=TRUE)]
-e <- e[!grepl("Marine",e,ignore.case=TRUE)]
-e <- e[!grepl("Winter",e,ignore.case=TRUE)]
-
-# Hail ------------
-f <- u[grepl("HAIL",u,ignore.case=TRUE)]
-
-# Tornado -----------------------------------------------
-g <- union(u[grepl("Tornado",u,ignore.case=TRUE)],u[grepl("Tornados",u,ignore.case=TRUE)])
-
-# High_Temperature and Dry Weather ----------------------------
-h <- union(union(union(u[grepl("TEMP",u,ignore.case=TRUE)],u[grepl("WARM",u,ignore.case=TRUE)]),
-                 u[grepl("Hot",u,ignore.case=TRUE)]),u[grepl("heat",u,ignore.case=TRUE)])
-h <- h[!grepl("Chill",h,ignore.case=TRUE)]
-h <- h[!grepl("Wet",h,ignore.case=TRUE)]
-h <- h[!grepl("Cold",h,ignore.case=TRUE)]
-
-# Generate filtered data set (x_filtered)
-x_filtered <- x[x$EVTYPE %in% c(a,b,c,d,e,f,g,h),]
-
-# Add factor column describing weather event categories
 v <- x_filtered$EVTYPE
-v[x_filtered$EVTYPE %in% a] = "Marine_Activity"
-v[x_filtered$EVTYPE %in% b] = "Winter_Weather"
-v[x_filtered$EVTYPE %in% c] = "Rain_Flood"
-v[x_filtered$EVTYPE %in% d] = "Fire"
-v[x_filtered$EVTYPE %in% e] = "TSTM_Wind_Lightning"
-v[x_filtered$EVTYPE %in% f] = "Hail"
-v[x_filtered$EVTYPE %in% g] = "Tornado"
-v[x_filtered$EVTYPE %in% h] = "HiTemp_Dry_Conditions"
-
-
-# Generate table that map event categories to specific recorded weather activity
-grps <- c(paste(a, collapse=', ' ),paste(b, collapse=', ' ),
-          paste(c, collapse=', ' ),paste(d, collapse=', ' ),
-          paste(e, collapse=', ' ),paste(f, collapse=', ' ),
-          paste(g, collapse=', ' ),paste(h, collapse=', ' ))
-
-
-event_classification <- data.frame(Event_Group=c("Marine_Activity","Winter_Weather",
-  "Rain_Flood","Fire","TSTM_Wind_Lightning","Hail","Tornado",
-  "HiTemp_Dry_Conditions"),Event_type=grps)            
+v[x_filtered$EVTYPE %in% a1] = "Astromomical Low Tide"
+v[x_filtered$EVTYPE %in% a2] = "Avalanche"
+v[x_filtered$EVTYPE %in% a3] = "Blizzard"
+v[x_filtered$EVTYPE %in% a4] = "Coastal Flood"
+v[x_filtered$EVTYPE %in% a5] = "Cold/Wind Chill"
+v[x_filtered$EVTYPE %in% a6] = "Debris Flow"
+v[x_filtered$EVTYPE %in% a7] = "Dense Fog"
+v[x_filtered$EVTYPE %in% a8] = "Dense Smoke"
+v[x_filtered$EVTYPE %in% a9] = "Drought"
+v[x_filtered$EVTYPE %in% a10] = "Dust Devil"
+v[x_filtered$EVTYPE %in% a11] = "Dust Storm"
+v[x_filtered$EVTYPE %in% a12] = "Excessive Heat"
+v[x_filtered$EVTYPE %in% a13] = "Extreme Cold/Wind Chill"
+v[x_filtered$EVTYPE %in% a14] = "Flash Flood"
+v[x_filtered$EVTYPE %in% a15] = "Flood"
+v[x_filtered$EVTYPE %in% a16] = "Frost/Freeze"
+v[x_filtered$EVTYPE %in% a17] = "Funnel Cloud"
+v[x_filtered$EVTYPE %in% a18] = "Freezing Fog"
+v[x_filtered$EVTYPE %in% a19] = "Hail"
+v[x_filtered$EVTYPE %in% a20] = "Heat"
+v[x_filtered$EVTYPE %in% a21] = "Heavy Rain"
+v[x_filtered$EVTYPE %in% a22] = "Heavy Snow"
+v[x_filtered$EVTYPE %in% a23] = "High Surf"
+v[x_filtered$EVTYPE %in% a24] = "High Wind"
+v[x_filtered$EVTYPE %in% b1] = "Hurricane/Typhoon"
+v[x_filtered$EVTYPE %in% b2] = "Ice Storm"
+v[x_filtered$EVTYPE %in% b3] = "Lake-Effect Snow"
+v[x_filtered$EVTYPE %in% b4] = "Lakeshore Flood"
+v[x_filtered$EVTYPE %in% b5] = "Lightning"
+v[x_filtered$EVTYPE %in% b6] = "Marine Hail"
+v[x_filtered$EVTYPE %in% b7] = "Marine High Wind"
+v[x_filtered$EVTYPE %in% b8] = "Marine Strong Wind"
+v[x_filtered$EVTYPE %in% b9] = "Marine Thunderstorm Wind"
+v[x_filtered$EVTYPE %in% b10] = "Rip Current"
+v[x_filtered$EVTYPE %in% b11] = "Seiche"
+v[x_filtered$EVTYPE %in% b12] = "Sleet"
+v[x_filtered$EVTYPE %in% b13] = "Storm Surge/Tide"
+v[x_filtered$EVTYPE %in% b14] = "Strong Wind"
+v[x_filtered$EVTYPE %in% b15] = "Thunderstorm Wind"
+v[x_filtered$EVTYPE %in% b16] = "Tornado"
+v[x_filtered$EVTYPE %in% b17] = "Tropical Depression"
+v[x_filtered$EVTYPE %in% b18] = "Tropical Storm"
+v[x_filtered$EVTYPE %in% b19] = "Tsunami"
+v[x_filtered$EVTYPE %in% b20] = "Volcanic Ash"
+v[x_filtered$EVTYPE %in% b21] = "Waterspout"
+v[x_filtered$EVTYPE %in% b22] = "Wildfire"
+v[x_filtered$EVTYPE %in% b23] = "Winter Storm"
+v[x_filtered$EVTYPE %in% b24] = "Winter Weather"
 ```
-
-### Note, a distinction is made between Thunderstorm activity (weather category 4) that primarily entails strong wind gusts and lightning interspersed with rain activity, and sustained precipitation from rain over longer periods that lead to flooding (weather category 3). 
-
-### The filtered database (x_filtered) contains 655 recorded weather activities (868033 rows of data) that map into the event categories as described above. The filtered data was used for further analysis. 
-
-### The  total number of fatalities and injuries across the data sampling period was summed to give the number of casualties for each weather category.
+### The final filtered database (x_filtered) only contain 39 of the 48 weather event categories defined above. The  total number of fatalities and injuries across the data sampling period was summed to give the number of casualties for each weather category.
 
 
 ```r
@@ -142,52 +152,64 @@ df <- data.frame(EVENT=u[index],FATALITIES=as.numeric(y[index,1]),
     PERCENT_OF_TOTAL=100*as.numeric(rowSums(y[index,]))/sum(as.numeric(rowSums(y))))
 ```
 
+### The casualty data arising from all the monitored weather events by event category, was estimated  and the results displayed in the the table below (TABLE 1). Note that only 31 of the 39 weather categories contained casualty data.
+
+
+```
+##                EVENT FATALITIES INJURIES CASUALTY_COUNT PERCENT_OF_TOTAL
+## 1            Tornado       5658    91364          97022     63.731730548
+## 2               Heat       3138     9224          12362      8.120340263
+## 3  Thunderstorm Wind        728     9493          10221      6.713961967
+## 4              Flood       1524     8602          10126      6.651558446
+## 5          Lightning       1037     5268           6305      4.141623148
+## 6          Ice Storm         89     1992           2081      1.366965547
+## 7          High Wind        295     1507           1802      1.183696259
+## 8       Winter Storm        217     1353           1570      1.031300292
+## 9  Hurricane/Typhoon        135     1333           1468      0.964298617
+## 10              Hail         15     1371           1386      0.910434526
+## 11        Heavy Snow        127     1034           1161      0.762636713
+## 12       Rip Current        577      529           1106      0.726508359
+## 13          Wildfire         75      911            986      0.647682859
+## 14          Blizzard        101      805            906      0.595132525
+## 15    Winter Weather         61      538            599      0.393470621
+## 16        Dust Storm         22      440            462      0.303478175
+## 17    Tropical Storm         66      383            449      0.294938746
+## 18       Strong Wind        125      323            448      0.294281867
+## 19         Avalanche        224      170            394      0.258810392
+## 20         Dense Fog         18      342            360      0.236476500
+## 21        Heavy Rain         99      255            354      0.232535225
+## 22         High Surf        146      204            350      0.229907708
+## 23           Tsunami         33      129            162      0.106414425
+## 24        Waterspout          6       72             78      0.051236575
+## 25        Dust Devil          2       43             45      0.029559563
+## 26  Storm Surge/Tide         11        5             16      0.010510067
+## 27      Frost/Freeze          2        3              5      0.003284396
+## 28           Drought          0        4              4      0.002627517
+## 29      Funnel Cloud          0        3              3      0.001970638
+## 30  Marine High Wind          1        1              2      0.001313758
+## 31             Sleet          2        0              2      0.001313758
+```
+
 ### An event severity index for each weather event was determined by taking the log of all casualty numbers for, i.e. 
 
 
 ```r
-event_severity_index <- log(df$CASUALTY_COUNT)
+event_severity_index <- log(df$CASUALTY_COUNT[1:31])
 ```
-
-### The casualty data arising from all the monitored weather events by event category, was estimated  and the results displayed in the the table below
-
-
-```
-##                   EVENT FATALITIES INJURIES CASUALTY_COUNT
-## 1               Tornado       5661    91407          97068
-## 2   TSTM_Wind_Lightning       1959    16517          18476
-## 3 HiTemp_Dry_Conditions       3185     9243          12428
-## 4            Rain_Flood       1625     8882          10507
-## 5        Winter_Weather       1422     7701           9123
-## 6                  Fire         90     1608           1698
-## 7       Marine_Activity        193     1505           1698
-## 8                  Hail         20     1467           1487
-##   PERCENT_OF_TOTAL
-## 1       63.6574089
-## 2       12.1166016
-## 3        8.1503099
-## 4        6.8905138
-## 5        5.9828836
-## 6        1.1135522
-## 7        1.1135522
-## 8        0.9751779
-```
-
-###The table above indicates that Tornados are the largest contributor to the casualty levels from weather related activity (64%). Tornados coupled with thunderstorm activity (wind and lightening) account for 76% of all casualties
 
 ###The following plot tracks the event severity index by event category, where the even categories are displayed from the most consequential to the least consequential:
 
 
 ```r
 par(mar = c(7, 4, 4, 2) + 0.1) ## Increase bottom margin to make room for rotated labels
-plot(event_severity_index, xaxt = "n", pch=19,cex=1.5,
+plot(event_severity_index[1:31], xaxt = "n", pch=19,cex=1.2,
      type=  "b",
      xlab = "",
      ylab="Event Severity Index",
-      main="Severity of Human Casualties by Event Category")
+      main="Severity of Human Casualties by Weather Event")
 axis(1, labels = FALSE)
-labels <- as.character(df$EVENT)
-text(1:length(event_severity_index),par("usr")[3] - 0.25, srt = 45, adj = 1,
+labels <- as.character(df$EVENT[1:31])
+text(1:31,par("usr")[3] - 0.25, srt = 45, adj = 1,
      labels = labels, xpd = TRUE)
 ```
 
@@ -212,7 +234,7 @@ z <- data.frame(matrix(ncol = 3, nrow = length(v)))
 colnames(z) <- c("STATE","EVENT_CATEGORY","TOTAL_DAMAGES (TRILLION $)")
 ```
 
-### Retrieve property and crop damage amounts for the event with the larget economic consequence for each state
+###  Property and crop damage amounts were retrieved for the weather event with the larget economic consequence for each state
 
 
 ```r
@@ -246,79 +268,78 @@ for (j in 1:length(v)) {
 }
 ```
 
-### The data that ties the largest economic losses to a specific weather category across all 50 states (US Territories exluded), is summarized in the following table:
+### The data that ties the largest economic losses to a specific weather category across all 50 states (US Territories exluded), is summarized in the following table (TABLE2):
 
 
 ```
-##    STATE      EVENT_CATEGORY TOTAL_DAMAGES (TRILLION $)
-## 1     AL          Rain_Flood               27.505286913
-## 2     AZ TSTM_Wind_Lightning              1.56019874755
-## 3     AR             Tornado             16.31992757831
-## 4     AK          Rain_Flood                1.756014423
-## 5     CA          Rain_Flood              16.2887266022
-## 6     CO          Rain_Flood               0.5933267473
-## 7     CT             Tornado              1.08750403662
-## 8     DE      Winter_Weather                1.252751155
-## 9     FL     Marine_Activity              356.746847781
-## 10    GA             Tornado             13.96838913697
-## 11    HI          Rain_Flood              0.57500531405
-## 12    ID          Rain_Flood                0.050189039
-## 13    IL          Rain_Flood            257.47885523467
-## 14    IN             Tornado              9.73344220989
-## 15    IA             Tornado             14.99039343081
-## 16    KS             Tornado              6.00351635817
-## 17    KY             Tornado             10.81563306868
-## 18    LA     Marine_Activity              751.845501429
-## 19    ME          Rain_Flood               0.5650449727
-## 20    MD             Tornado               1.2680197245
-## 21    MA          Rain_Flood                2.063804696
-## 22    MI             Tornado              7.30657084555
-## 23    MN             Tornado              8.14937460464
-## 24    MS     Marine_Activity             25.61025244501
-## 25    MO             Tornado            261.31492051972
-## 26    MT             Tornado              0.57775985015
-## 27    NE             Tornado              6.68829516671
-## 28    NV          Rain_Flood               0.8000711261
-## 29    NH          Rain_Flood              1.44027956577
-## 30    NJ          Rain_Flood               17.141514461
-## 31    NM                Fire                0.300563883
-## 32    NY          Rain_Flood             13.36815757449
-## 33    NC     Marine_Activity               27.588003731
-## 34    ND          Rain_Flood             252.0678564665
-## 35    OH          Rain_Flood              20.9136613743
-## 36    OK             Tornado             6.542592098233
-## 37    OR          Rain_Flood               2.9722543165
-## 38    PA          Rain_Flood               16.318393189
-## 39    RI          Rain_Flood                1.360001171
-## 40    SC             Tornado              3.54157653019
-## 41    SD          Rain_Flood               2.1108615613
-## 42    TN          Rain_Flood             34.90031532717
-## 43    TX     Marine_Activity               300.06000121
-## 44    UT          Rain_Flood               0.2552659967
-## 45    VT          Rain_Flood               2.3882822635
-## 46    VA             Tornado              4.09282899925
-## 47    WA          Rain_Flood               5.9113365505
-## 48    WV          Rain_Flood               4.7909390031
-## 49    WI             Tornado             13.19070307958
-## 50    WY                Hail               0.0300362472
+##    STATE    EVENT_CATEGORY TOTAL_DAMAGES (TRILLION $)
+## 1     AL             Flood              27.2552862345
+## 2     AZ Thunderstorm Wind               1.5576624123
+## 3     AR           Tornado             16.31992724131
+## 4     AK             Flood                2.195512558
+## 5     CA             Flood              13.8210581912
+## 6     CO             Flood              0.56204554815
+## 7     CT           Tornado              1.08750403662
+## 8     DE             Flood               0.7825024095
+## 9     FL Hurricane/Typhoon              355.666282706
+## 10    GA           Tornado             14.76013875967
+## 11    HI             Flood              0.52753459905
+## 12    ID             Flood                0.075158684
+## 13    IL             Flood            257.47885390244
+## 14    IN           Tornado             10.20319224889
+## 15    IA           Tornado             14.76314450506
+## 16    KS           Tornado              6.26174026517
+## 17    KY           Tornado             10.81563304368
+## 18    LA Hurricane/Typhoon              500.868000462
+## 19    ME             Flood               0.5425444677
+## 20    MD           Tornado               1.4880197295
+## 21    MA             Flood                1.838804646
+## 22    MI           Tornado              8.94957110055
+## 23    MN           Tornado              8.31212479014
+## 24    MS Hurricane/Typhoon             25.58000136001
+## 25    MO           Tornado            261.07486264212
+## 26    MT           Tornado              0.52775985015
+## 27    NE           Tornado              6.68829475316
+## 28    NV             Flood               0.8000707661
+## 29    NH             Flood              1.44027896577
+## 30    NJ             Flood               18.239512442
+## 31    NM              Hail              0.50612697385
+## 32    NY             Flood             13.46590798349
+## 33    NC Hurricane/Typhoon               27.830501841
+## 34    ND             Flood             252.0678544885
+## 35    OH             Flood              20.1694108603
+## 36    OK           Tornado             6.970312495233
+## 37    OR             Flood               1.9842549625
+## 38    PA             Flood               15.878892706
+## 39    RI             Flood                1.360001141
+## 40    SC           Tornado              3.99201665124
+## 41    SD           Tornado              1.44915331378
+## 42    TN             Flood             36.04778505917
+## 43    TX  Storm Surge/Tide              250.000000385
+## 44    UT             Flood               0.2552651124
+## 45    VT             Flood               2.3582820935
+## 46    VA             Flood            4.5788166930034
+## 47    WA             Flood                4.181045645
+## 48    WV             Flood               5.0582193881
+## 49    WI           Tornado             13.19070326408
+## 50    WY              Hail               0.0300365122
 ```
+
+###The table above indicates that only 6 of the 48 weather categories listed by NOAA (i.e. Flood, Thunderstorm Wind, Tornado, Hurricane/Typhoon, Hail and Storm Surge/Tide), are responsible for most of the economic losses in all 50 states. The plot below describes the number of states with the highest economic losses from each of the 6 weather categories:
 
 
 ```r
 # Distribution of event-categories leading to the most property damages across all 50 states
-event_count <- c(length(z[z$EVENT_CATEGORY=="Marine_Activity",2]),
-                 length(z[z$EVENT_CATEGORY=="Winter_Weather",2]),
-                 length(z[z$EVENT_CATEGORY=="Rain_Flood",2]),
-                 length(z[z$EVENT_CATEGORY=="Fire",2]),
-                 length(z[z$EVENT_CATEGORY=="TSTM_Wind_Lightning",2]),
-                 length(z[z$EVENT_CATEGORY=="Hail",2]),
+event_count <- c(length(z[z$EVENT_CATEGORY=="Flood",2]),
+                 length(z[z$EVENT_CATEGORY=="Thunderstorm Wind",2]),
                  length(z[z$EVENT_CATEGORY=="Tornado",2]),
-                 length(z[z$EVENT_CATEGORY=="HiTemp_Dry_Conditions",2]))
+                 length(z[z$EVENT_CATEGORY=="Hurricane/Typhoon",2]),
+                 length(z[z$EVENT_CATEGORY=="Hail",2]),
+                 length(z[z$EVENT_CATEGORY=="Storm Surge/Tide",2]))
 
+vr <- c("Flood","Thunderstorm Wind","Tornado",
+  "Hurricane/Typhoon","Hail","Storm Surge/Tide")
 
-vr <- c("Marine_Activity","Winter_Weather","Rain_Flood",
-  "Fire","TSTM_Wind_Lightning","Hail","Tornado",
-  "HiTemp_Dry_Conditions")
 
 par(mar = c(7, 4, 4, 2) + 0.1) ## Increase bottom margin to make room for rotated labels
 plot(event_count, xaxt = "n", pch=19,cex=1.5,
@@ -334,6 +355,6 @@ text(1:length(event_count),par("usr")[3] - 1, srt = 45, adj = 1,
 ![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5-1.png) 
 
 ##Results:
-###The analysis shows that 76% of all weather-related casualties from 1950 - 2011 are caused by weather activity that are linked to Tornados and Thunderstorms. As for the ecomomic consequences of bad weather, data from the plot above shows that rain and flood account for the greatest amount of economic loss in 24 of the 50 states (48%). While Tornados account for far more casualties, rain and floods (and related activity) cause the most damage.
+###The analysis shows that 76% of all weather-related casualties from 1950 - 2011 are caused by weather activity that are linked to Tornados and Heat. Table 1 indicates that Tornados are the largest contributor to the casualty levels from weather related activity (64%). Tornados coupled with Heat and Thunderstorm wind are the top three weather events with respect to casualty levels - these account for 79% of all casualties. As for the ecomomic consequences of bad weather, data from the plot above shows flood accounts for the greatest amount of economic loss in 25 of the 50 states (50%). While Tornados are responsible for most casualties, they also the largest source of economic loss from weather related activity in 16 of 50 states (32%). Looking at both casualty data and economic loss data, Tornados are by far the single most distructive type of weather event.
 
 
