@@ -205,26 +205,135 @@ hr {
 
 <h2>Synopsis:</h2>
 
-<h3>This report evaluates weather data acquired over 60 years (1950-2011) by the National Oceanic and Atmospheric Administration (NOAA). The analysis is narrowly focused on determining (1) the weather events that are most harmful to human health and (2) which weather events have the greatest ecomonic consequences across the United States. The analysis shows that 20 of the 985 unique weather events recorded over the measurement period account for 95% of all weather-related casualties (including injuries and fatalities) in the United States. Furthermore, 11 specific weather events are the most consequential with respect to property and crop damage across all 50 states.</h3>
+<h3>This report evaluates weather data acquired over 60 years (1950-2011) by the National Oceanic and Atmospheric Administration (NOAA). The analysis is narrowly focused on determining (1) the weather events that are most harmful to human health and (2) which weather events have the greatest ecomonic consequences across the United States. The analysis shows that Tornados are the largest source of human casualties (including injuries and fatalities) from weather related activity, accounting for 64% of casualties over the sampling period. Furthermore, the analysis indicates that rains and floods (and related activity), are the reason for most of the weather-related economic loss in half of all the 50 states.</h3>
 
 <h2>Data Processing:</h2>
 
-<p>###The NOAA database was downloaded from web via the John Hopkins Coursera portal and stored on the computer with which the analysis was done. The .csv file (repdata-data-StormData.csv) was then loaded in the R environment as follows:</p>
+<p>###The NOAA database was downloaded from web via the John Hopkins DataScience-Coursera site and stored on the computer with which the analysis was done. The .csv file (repdata-data-StormData.csv) consisting of 902297 rows and 37 columns, was then loaded into the R environment as follows:</p>
 
 <pre><code class="r">setwd(&quot;C://Users//solasoy//Dropbox//R//Coursera//Reproducible Research&quot;)
 x &lt;- read.csv(file=&#39;repdata-data-StormData.csv&#39;,
               colClasses=&quot;character&quot;)
 </code></pre>
 
-<p>###Next, for each of the 985 unique weather events, the number of total number of fatalities and injuries across the data sampling period was summed to give the number of casualties stemming from this weather activity.</p>
+<p>###The 985 weather events that were recorded over time were found to contain repititions and other redundant information. Accordingly the data required some filtering followed by the categorization of weather activity into distinct groups to facilitate further analysis. Accordingly, the following 8 weather categories were defined for all weather events:</p>
+
+<p>#####1. Marine Activity - Hurricanes, Typhoons, Tropical Depressions etc
+#####2. Winter Weather - Blizzards, Snow storms, freezing rain, etc
+#####3. Rain and Floods - Sustained Precipitation
+#####4. Thunderstorms - Specifically wind gusts and lightning with some rain
+#####5. Hail
+#####6. Tornado -including waterspouts
+#####7. Fire - Forest fires, wild fires etc
+#####8. High Temperature with Dry Conditions - Excessive heat, drought conditons</p>
+
+<h3>The data pre-processing step was carried out as follows:</h3>
 
 <pre><code class="r">x$INJURIES &lt;- as.numeric(x$INJURIES)
 x$FATALITIES &lt;- as.numeric(x$FATALITIES)
 
-u &lt;- unique(x$EVTYPE) # unique weather events
+u &lt;- unique(x$EVTYPE)
+
+# Consolidate event types into coherent groups
+
+# Marine_storms -------------------------------------------------------------
+a &lt;- union(union(union(union(union(u[grepl(&quot;HURRICANE&quot;,u,ignore.case=TRUE)],
+    u[grepl(&quot;TYPHOON&quot;,u,ignore.case=TRUE)]),u[grepl(&quot;TSUNAMI&quot;,u,ignore.case=TRUE)]),
+    u[grepl(&quot;Swell&quot;,u,ignore.case=TRUE)]),u[grepl(&quot;Tropical Depression&quot;,u,ignore.case=TRUE)]),
+    u[grepl(&quot;Surge&quot;,u,ignore.case=TRUE)])
+
+
+# Winter_weather -------------
+b &lt;- union(union(union(union(union(union(union(union(union(union(union(union(u[grepl(&quot;SNOW&quot;,u,ignore.case=TRUE)],
+      u[grepl(&quot;BLIZZARD&quot;,u,ignore.case=TRUE)]),u[grepl(&quot;CHILL&quot;,u,ignore.case=TRUE)]),
+      u[grepl(&quot;COLD&quot;,u,ignore.case=TRUE)]),u[grepl(&quot;Frost&quot;,u,ignore.case=TRUE)]),
+      u[grepl(&quot;wintry&quot;,u,ignore.case=TRUE)]),u[grepl(&quot;Freezing&quot;,u,ignore.case=TRUE)]),
+      u[grepl(&quot;Freeze&quot;,u,ignore.case=TRUE)]),u[grepl(&quot;ICE&quot;,u,ignore.case=TRUE)]),
+      u[grepl(&quot;hypothermia&quot;,u,ignore.case=TRUE)]),u[grepl(&quot;fog&quot;,u,ignore.case=TRUE)]),
+      u[grepl(&quot;Winter&quot;,u,ignore.case=TRUE)]),u[grepl(&quot;Avalanche&quot;,u,ignore.case=TRUE)])
+
+
+# Rain_and_Flood-------------------------------------
+c &lt;- union(u[grepl(&quot;RAIN&quot;,u,ignore.case=TRUE)],u[grepl(&quot;FLOOD&quot;,u,ignore.case=TRUE)])
+c &lt;- c[!grepl(&quot;WIND&quot;,c,ignore.case=TRUE)]
+c &lt;- c[!grepl(&quot;FREEZING RAIN&quot;,c,ignore.case=TRUE)]
+c &lt;- c[!grepl(&quot;SNOW&quot;,c,ignore.case=TRUE)]
+c &lt;- c[!grepl(&quot;ice&quot;,c,ignore.case=TRUE)]
+c &lt;- c[!grepl(&quot;lightning&quot;,c,ignore.case=TRUE)]
+
+
+# Fire ---------------------
+d &lt;- union(u[grepl(&quot;FIRE&quot;,u,ignore.case=TRUE)],u[grepl(&quot;Smoke&quot;,u,ignore.case=TRUE)])
+
+
+# Thunderstorm_Wind_and_Lightning ------------------------
+e &lt;- union(union(union(u[grepl(&quot;WIND&quot;,u,ignore.case=TRUE)],
+    u[grepl(&quot;THUNDERSTORM&quot;,u,ignore.case=TRUE)]), u[grepl(&quot;TSTM&quot;,u,ignore.case=TRUE)]),
+    u[grepl(&quot;lightning&quot;,u,ignore.case=TRUE)])
+
+e &lt;- e[!grepl(&quot;WINDCHILL&quot;,e,ignore.case=TRUE)]
+e &lt;- e[!grepl(&quot;RAIN&quot;,e,ignore.case=TRUE)]
+e &lt;- e[!grepl(&quot;FLOOD&quot;,e,ignore.case=TRUE)]
+e &lt;- e[!grepl(&quot;SNOW&quot;,e,ignore.case=TRUE)]
+e &lt;- e[!grepl(&quot;CHILL&quot;,e,ignore.case=TRUE)]
+e &lt;- e[!grepl(&quot;HURRICANE&quot;,e,ignore.case=TRUE)]
+e &lt;- e[!grepl(&quot;Tornado&quot;,e,ignore.case=TRUE)]
+e &lt;- e[!grepl(&quot;hail&quot;,e,ignore.case=TRUE)]
+e &lt;- e[!grepl(&quot;Blizzard&quot;,e,ignore.case=TRUE)]
+e &lt;- e[!grepl(&quot;Marine&quot;,e,ignore.case=TRUE)]
+e &lt;- e[!grepl(&quot;Winter&quot;,e,ignore.case=TRUE)]
+
+# Hail ------------
+f &lt;- u[grepl(&quot;HAIL&quot;,u,ignore.case=TRUE)]
+
+# Tornado -----------------------------------------------
+g &lt;- union(u[grepl(&quot;Tornado&quot;,u,ignore.case=TRUE)],u[grepl(&quot;Tornados&quot;,u,ignore.case=TRUE)])
+
+# High_Temperature and Dry Weather ----------------------------
+h &lt;- union(union(union(u[grepl(&quot;TEMP&quot;,u,ignore.case=TRUE)],u[grepl(&quot;WARM&quot;,u,ignore.case=TRUE)]),
+                 u[grepl(&quot;Hot&quot;,u,ignore.case=TRUE)]),u[grepl(&quot;heat&quot;,u,ignore.case=TRUE)])
+h &lt;- h[!grepl(&quot;Chill&quot;,h,ignore.case=TRUE)]
+h &lt;- h[!grepl(&quot;Wet&quot;,h,ignore.case=TRUE)]
+h &lt;- h[!grepl(&quot;Cold&quot;,h,ignore.case=TRUE)]
+
+# Generate filtered data set (x_filtered)
+x_filtered &lt;- x[x$EVTYPE %in% c(a,b,c,d,e,f,g,h),]
+
+# Add factor column describing weather event categories
+v &lt;- x_filtered$EVTYPE
+v[x_filtered$EVTYPE %in% a] = &quot;Marine_Activity&quot;
+v[x_filtered$EVTYPE %in% b] = &quot;Winter_Weather&quot;
+v[x_filtered$EVTYPE %in% c] = &quot;Rain_Flood&quot;
+v[x_filtered$EVTYPE %in% d] = &quot;Fire&quot;
+v[x_filtered$EVTYPE %in% e] = &quot;TSTM_Wind_Lightning&quot;
+v[x_filtered$EVTYPE %in% f] = &quot;Hail&quot;
+v[x_filtered$EVTYPE %in% g] = &quot;Tornado&quot;
+v[x_filtered$EVTYPE %in% h] = &quot;HiTemp_Dry_Conditions&quot;
+
+
+# Generate table that map event categories to specific recorded weather activity
+grps &lt;- c(paste(a, collapse=&#39;, &#39; ),paste(b, collapse=&#39;, &#39; ),
+          paste(c, collapse=&#39;, &#39; ),paste(d, collapse=&#39;, &#39; ),
+          paste(e, collapse=&#39;, &#39; ),paste(f, collapse=&#39;, &#39; ),
+          paste(g, collapse=&#39;, &#39; ),paste(h, collapse=&#39;, &#39; ))
+
+
+event_classification &lt;- data.frame(Event_Group=c(&quot;Marine_Activity&quot;,&quot;Winter_Weather&quot;,
+  &quot;Rain_Flood&quot;,&quot;Fire&quot;,&quot;TSTM_Wind_Lightning&quot;,&quot;Hail&quot;,&quot;Tornado&quot;,
+  &quot;HiTemp_Dry_Conditions&quot;),Event_type=grps)            
+</code></pre>
+
+<h3>Note, a distinction is made between Thunderstorm activity (weather category 4) that primarily entails strong wind gusts and lightning interspersed with rain activity, and sustained precipitation from rain over longer periods that lead to flooding (weather category 3).</h3>
+
+<h3>The filtered database (x_filtered) contains 655 recorded weather activities (868033 rows of data) that map into the event categories as described above. The filtered data was used for further analysis.</h3>
+
+<h3>The  total number of fatalities and injuries across the data sampling period was summed to give the number of casualties for each weather category.</h3>
+
+<pre><code class="r">x_filtered$Event_Categories &lt;- v
+u &lt;- unique(x_filtered$Event_Categories)
 y &lt;- matrix(0,length(u),2)
 for (j in 1:length(u)) {
-  y[j,] &lt;- colSums(x[x$EVTYPE == u[j],c(&quot;FATALITIES&quot;,&quot;INJURIES&quot;)],na.rm=TRUE)
+  y[j,] &lt;- colSums(x_filtered[x_filtered$Event_Categories == u[j],c(&quot;FATALITIES&quot;,&quot;INJURIES&quot;)],na.rm=TRUE)
 }
 
 index &lt;- order(as.numeric(rowSums(y)),as.numeric(y[,2]),as.numeric(y[,1]),decreasing=TRUE)
@@ -233,85 +342,64 @@ df &lt;- data.frame(EVENT=u[index],FATALITIES=as.numeric(y[index,1]),
     PERCENT_OF_TOTAL=100*as.numeric(rowSums(y[index,]))/sum(as.numeric(rowSums(y))))
 </code></pre>
 
-<p>###An event severity index for each weather event was determined by taking the log of all casualty numbers for, i.e. </p>
+<h3>An event severity index for each weather event was determined by taking the log of all casualty numbers for, i.e.</h3>
 
 <pre><code class="r">event_severity_index &lt;- log(df$CASUALTY_COUNT)
 </code></pre>
 
-<h3>The casualty data arising from all the monitored weather events were captured in a data frame. The top 20 weather events with respect to casualty levels, are as follows:</h3>
+<h3>The casualty data arising from all the monitored weather events by event category, was estimated  and the results displayed in the the table below</h3>
 
-<pre><code class="r">head(df,20)
+<pre><code>##                   EVENT FATALITIES INJURIES CASUALTY_COUNT
+## 1               Tornado       5661    91407          97068
+## 2   TSTM_Wind_Lightning       1959    16517          18476
+## 3 HiTemp_Dry_Conditions       3185     9243          12428
+## 4            Rain_Flood       1625     8882          10507
+## 5        Winter_Weather       1422     7701           9123
+## 6                  Fire         90     1608           1698
+## 7       Marine_Activity        193     1505           1698
+## 8                  Hail         20     1467           1487
+##   PERCENT_OF_TOTAL
+## 1       63.6574089
+## 2       12.1166016
+## 3        8.1503099
+## 4        6.8905138
+## 5        5.9828836
+## 6        1.1135522
+## 7        1.1135522
+## 8        0.9751779
 </code></pre>
 
-<pre><code>##                 EVENT FATALITIES INJURIES CASUALTY_COUNT PERCENT_OF_TOTAL
-## 1             TORNADO       5633    91346          96979       62.2966089
-## 2      EXCESSIVE HEAT       1903     6525           8428        5.4139125
-## 3           TSTM WIND        504     6957           7461        4.7927386
-## 4               FLOOD        470     6789           7259        4.6629795
-## 5           LIGHTNING        816     5230           6046        3.8837820
-## 6                HEAT        937     2100           3037        1.9508842
-## 7         FLASH FLOOD        978     1777           2755        1.7697353
-## 8           ICE STORM         89     1975           2064        1.3258561
-## 9   THUNDERSTORM WIND        133     1488           1621        1.0412853
-## 10       WINTER STORM        206     1321           1527        0.9809023
-## 11          HIGH WIND        248     1137           1385        0.8896854
-## 12               HAIL         15     1361           1376        0.8839041
-## 13  HURRICANE/TYPHOON         64     1275           1339        0.8601363
-## 14         HEAVY SNOW        127     1021           1148        0.7374432
-## 15           WILDFIRE         75      911            986        0.6333789
-## 16 THUNDERSTORM WINDS         64      908            972        0.6243857
-## 17           BLIZZARD        101      805            906        0.5819892
-## 18                FOG         62      734            796        0.5113282
-## 19        RIP CURRENT        368      232            600        0.3854233
-## 20   WILD/FOREST FIRE         12      545            557        0.3578013
-</code></pre>
+<p>###The table above indicates that Tornados are the largest contributor to the casualty levels from weather related activity (64%). Tornados coupled with thunderstorm activity (wind and lightening) account for 76% of all casualties</p>
 
-<p>###The following plot tracks the event severity index by weather type, and shows the most consequential weather events:</p>
+<p>###The following plot tracks the event severity index by event category, where the even categories are displayed from the most consequential to the least consequential:</p>
 
 <pre><code class="r">par(mar = c(7, 4, 4, 2) + 0.1) ## Increase bottom margin to make room for rotated labels
-plot(event_severity_index[1:20], xaxt = &quot;n&quot;, pch=19,
+plot(event_severity_index, xaxt = &quot;n&quot;, pch=19,cex=1.5,
      type=  &quot;b&quot;,
      xlab = &quot;&quot;,
      ylab=&quot;Event Severity Index&quot;,
-     main=&quot;Top 20 most harmful weather events to humans&quot;)
+      main=&quot;Severity of Human Casualties by Event Category&quot;)
 axis(1, labels = FALSE)
-labels &lt;- df$EVENT[1:20]
-text(1:20,par(&quot;usr&quot;)[3] - 0.25, srt = 45, adj = 1,
+labels &lt;- as.character(df$EVENT)
+text(1:length(event_severity_index),par(&quot;usr&quot;)[3] - 0.25, srt = 45, adj = 1,
      labels = labels, xpd = TRUE)
 </code></pre>
 
-<p><img src="figure/Event%20severity%20index%20versus%20weather%20event-1.png" alt="plot of chunk Event severity index versus weather event"/> </p>
-
-<p>###The following plot highlights the percentage of all weather-related casualties in the last 60 years that derive from each of the top 20 weather events:</p>
-
-<pre><code class="r">par(mar = c(7, 4, 4, 2) + 0.1) 
-with(df,plot(PERCENT_OF_TOTAL[1:20],pch=19,
-      ylab=&quot;Percent of Total Casualties&quot;,
-      xlab=NA,
-      type=&quot;b&quot;, xaxt = &quot;n&quot;,
-      main=&quot;Weather events responsible for 94.6%\nof total number of casualties&quot;))
-
-axis(1, labels = FALSE)
-labels &lt;- df$EVENT[1:20]
-text(1:20,par(&quot;usr&quot;)[3] - 0.25, srt = 45, adj = 1,
-     labels = labels, xpd = TRUE)
-</code></pre>
-
-<p><img src="figure/Percent%20of%20total%20casualties%20versus%20weather%20event-1.png" alt="plot of chunk Percent of total casualties versus weather event"/> </p>
+<p><img src="data:image/png;base64,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" alt="plot of chunk Event severity index versus weather event"/> </p>
 
 <p>###Next, property and crop damage data were used to evaluate the ecomomic consequences of weather events. Specifically, data from each of the 50 states was evaluated and the weather event resulting in the highest monetary loss from property and crop damage was determined. The analysis was carried out as follows:</p>
 
-<pre><code class="r">xt = x # assign NOAA dataset to new variable xt and use the variables PROPDMGEXP and CROPDMGEXP to filter data
+<pre><code class="r">xt = x_filtered # assign NOAA dataset to new variable xt and use the variables PROPDMGEXP and CROPDMGEXP to filter data
 f1 &lt;- union(union(grep(&quot;K&quot;,xt$PROPDMGEXP),grep(&quot;B&quot;,xt$PROPDMGEXP)),grep(&quot;M&quot;,xt$PROPDMGEXP))
 f2 &lt;- union(union(grep(&quot;K&quot;,xt$CROPDMGEXP),grep(&quot;B&quot;,xt$CROPDMGEXP)),grep(&quot;M&quot;,xt$CROPDMGEXP))
 f &lt;- union(f1,f2)
-xt &lt;- x[f,]
+xt &lt;- x_filtered[f,]
 </code></pre>
 
 <pre><code class="r">v &lt;- unique(xt$STATE)
 v &lt;- c(v[1:3],&quot;AK&quot;,v[4:49]) # 50 states
 z &lt;- data.frame(matrix(ncol = 3, nrow = length(v))) 
-colnames(z) &lt;- c(&quot;STATE&quot;,&quot;EVENT&quot;,&quot;TOTAL_DAMAGES (TRILLION $)&quot;)
+colnames(z) &lt;- c(&quot;STATE&quot;,&quot;EVENT_CATEGORY&quot;,&quot;TOTAL_DAMAGES (TRILLION $)&quot;)
 </code></pre>
 
 <h3>Retrieve property and crop damage amounts for the event with the larget economic consequence for each state</h3>
@@ -320,7 +408,7 @@ colnames(z) &lt;- c(&quot;STATE&quot;,&quot;EVENT&quot;,&quot;TOTAL_DAMAGES (TRI
 
   # Retrieve crop damage data
   select &lt;- xt$STATE == v[j] &amp; (xt$PROPDMG &gt; 0 | xt$CROPDMG &gt; 0)
-  df &lt;- xt[select,c(&quot;EVTYPE&quot;, &quot;PROPDMG&quot;, &quot;PROPDMGEXP&quot;,&quot;CROPDMG&quot;, &quot;CROPDMGEXP&quot;)]
+  df &lt;- xt[select,c(&quot;Event_Categories&quot;, &quot;PROPDMG&quot;, &quot;PROPDMGEXP&quot;,&quot;CROPDMG&quot;, &quot;CROPDMGEXP&quot;)]
   df$PROPDMG &lt;- as.numeric(df$PROPDMG)
   df$CROPDMG &lt;- as.numeric(df$CROPDMG)
   df$PROPDMG[df$PROPDMGEXP == &quot;K&quot;] &lt;- array(df$PROPDMG * 1000,length(df$PROPDMG[df$PROPDMGEXP == &quot;K&quot;]))
@@ -334,7 +422,7 @@ colnames(z) &lt;- c(&quot;STATE&quot;,&quot;EVENT&quot;,&quot;TOTAL_DAMAGES (TRI
   # Calculate total property and crop damage for each event type in state j
   y2 &lt;- matrix(0,length(u),1) 
   for (k in 1:length(u)) {
-    y2[k] &lt;- sum(colSums(df[df$EVTYPE == u[k],c(&quot;PROPDMG&quot;,&quot;CROPDMG&quot;)],na.rm=TRUE))
+    y2[k] &lt;- sum(colSums(df[df$Event_Categories == u[k],c(&quot;PROPDMG&quot;,&quot;CROPDMG&quot;)],na.rm=TRUE))
   }
 
   # Sort results to determine event with largest property damamge in state j
@@ -346,63 +434,91 @@ colnames(z) &lt;- c(&quot;STATE&quot;,&quot;EVENT&quot;,&quot;TOTAL_DAMAGES (TRI
 }
 </code></pre>
 
-<h3>The data that ties the largest economic losses to the a specific type of weather event in all of the 50 states, is summarized in the following table:</h3>
+<h3>The data that ties the largest economic losses to a specific weather category across all 50 states (US Territories exluded), is summarized in the following table:</h3>
 
-<pre><code>##    STATE             EVENT TOTAL_DAMAGES (TRILLION $)
-## 1     AL       FLASH FLOOD               26.002779556
-## 2     AZ THUNDERSTORM WIND               0.9025775262
-## 3     AR           TORNADO             16.31992722732
-## 4     AK             FLOOD              1.75501066194
-## 5     CA             FLOOD                10.86876287
-## 6     CO             FLOOD              0.50253144065
-## 7     CT           TORNADO              1.08750403662
-## 8     DE      WINTER STORM                 0.77750065
-## 9     FL HURRICANE/TYPHOON              327.832560205
-## 10    GA           TORNADO             14.76013881167
-## 11    HI       FLASH FLOOD                0.550003009
-## 12    ID         HIGH WIND               0.0500033363
-## 13    IL       RIVER FLOOD                    250.275
-## 14    IN           TORNADO              9.73344224889
-## 15    IA           TORNADO             15.67039384016
-## 16    KS           TORNADO              6.00351703467
-## 17    KY           TORNADO             10.81563304168
-## 18    LA HURRICANE/TYPHOON               500.02775003
-## 19    ME             FLOOD               0.4875347637
-## 20    MD           TORNADO               0.8630197245
-## 21    MA             FLOOD                1.708298835
-## 22    MI           TORNADO              7.30657084555
-## 23    MN           TORNADO              8.14937417664
-## 24    MS       STORM SURGE                25.25500103
-## 25    MO           TORNADO            261.31492078522
-## 26    MT           TORNADO              0.57775985115
-## 27    NE           TORNADO              6.68829547561
-## 28    NV             FLOOD                0.500035245
-## 29    NH             FLOOD              1.03526836327
-## 30    NJ             FLOOD                13.79450444
-## 31    NM              HAIL              0.53078701485
-## 32    NY       FLASH FLOOD               6.9473207615
-## 33    NC         HURRICANE               26.527750841
-## 34    ND             FLOOD              251.682810413
-## 35    OH       FLASH FLOOD              13.8558500518
-## 36    OK           TORNADO             6.970313047233
-## 37    OR             FLOOD               2.0515037075
-## 38    PA             FLOOD                8.305817147
-## 39    RI             FLOOD                 1.36000046
-## 40    SC           TORNADO              3.99201642519
-## 41    SD              HAIL              1.28759211782
-## 42    TN             FLOOD              30.2025435913
-## 43    TX         HURRICANE               250.30100076
-## 44    UT       FLASH FLOOD               0.2552593792
-## 45    VT       FLASH FLOOD                1.237518889
-## 46    VA           TORNADO               4.5405790273
-## 47    WA             FLOOD                4.524340718
-## 48    WV       FLASH FLOOD               3.2671642861
-## 49    WI           TORNADO             13.19070217908
-## 50    WY              HAIL               0.0300365217
+<pre><code>##    STATE      EVENT_CATEGORY TOTAL_DAMAGES (TRILLION $)
+## 1     AL          Rain_Flood               27.505286913
+## 2     AZ TSTM_Wind_Lightning              1.56019874755
+## 3     AR             Tornado             16.31992757831
+## 4     AK          Rain_Flood                1.756014423
+## 5     CA          Rain_Flood              16.2887266022
+## 6     CO          Rain_Flood               0.5933267473
+## 7     CT             Tornado              1.08750403662
+## 8     DE      Winter_Weather                1.252751155
+## 9     FL     Marine_Activity              356.746847781
+## 10    GA             Tornado             13.96838913697
+## 11    HI          Rain_Flood              0.57500531405
+## 12    ID          Rain_Flood                0.050189039
+## 13    IL          Rain_Flood            257.47885523467
+## 14    IN             Tornado              9.73344220989
+## 15    IA             Tornado             14.99039343081
+## 16    KS             Tornado              6.00351635817
+## 17    KY             Tornado             10.81563306868
+## 18    LA     Marine_Activity              751.845501429
+## 19    ME          Rain_Flood               0.5650449727
+## 20    MD             Tornado               1.2680197245
+## 21    MA          Rain_Flood                2.063804696
+## 22    MI             Tornado              7.30657084555
+## 23    MN             Tornado              8.14937460464
+## 24    MS     Marine_Activity             25.61025244501
+## 25    MO             Tornado            261.31492051972
+## 26    MT             Tornado              0.57775985015
+## 27    NE             Tornado              6.68829516671
+## 28    NV          Rain_Flood               0.8000711261
+## 29    NH          Rain_Flood              1.44027956577
+## 30    NJ          Rain_Flood               17.141514461
+## 31    NM                Fire                0.300563883
+## 32    NY          Rain_Flood             13.36815757449
+## 33    NC     Marine_Activity               27.588003731
+## 34    ND          Rain_Flood             252.0678564665
+## 35    OH          Rain_Flood              20.9136613743
+## 36    OK             Tornado             6.542592098233
+## 37    OR          Rain_Flood               2.9722543165
+## 38    PA          Rain_Flood               16.318393189
+## 39    RI          Rain_Flood                1.360001171
+## 40    SC             Tornado              3.54157653019
+## 41    SD          Rain_Flood               2.1108615613
+## 42    TN          Rain_Flood             34.90031532717
+## 43    TX     Marine_Activity               300.06000121
+## 44    UT          Rain_Flood               0.2552659967
+## 45    VT          Rain_Flood               2.3882822635
+## 46    VA             Tornado              4.09282899925
+## 47    WA          Rain_Flood               5.9113365505
+## 48    WV          Rain_Flood               4.7909390031
+## 49    WI             Tornado             13.19070307958
+## 50    WY                Hail               0.0300362472
 </code></pre>
 
+<pre><code class="r"># Distribution of event-categories leading to the most property damages across all 50 states
+event_count &lt;- c(length(z[z$EVENT_CATEGORY==&quot;Marine_Activity&quot;,2]),
+                 length(z[z$EVENT_CATEGORY==&quot;Winter_Weather&quot;,2]),
+                 length(z[z$EVENT_CATEGORY==&quot;Rain_Flood&quot;,2]),
+                 length(z[z$EVENT_CATEGORY==&quot;Fire&quot;,2]),
+                 length(z[z$EVENT_CATEGORY==&quot;TSTM_Wind_Lightning&quot;,2]),
+                 length(z[z$EVENT_CATEGORY==&quot;Hail&quot;,2]),
+                 length(z[z$EVENT_CATEGORY==&quot;Tornado&quot;,2]),
+                 length(z[z$EVENT_CATEGORY==&quot;HiTemp_Dry_Conditions&quot;,2]))
+
+
+vr &lt;- c(&quot;Marine_Activity&quot;,&quot;Winter_Weather&quot;,&quot;Rain_Flood&quot;,
+  &quot;Fire&quot;,&quot;TSTM_Wind_Lightning&quot;,&quot;Hail&quot;,&quot;Tornado&quot;,
+  &quot;HiTemp_Dry_Conditions&quot;)
+
+par(mar = c(7, 4, 4, 2) + 0.1) ## Increase bottom margin to make room for rotated labels
+plot(event_count, xaxt = &quot;n&quot;, pch=19,cex=1.5,
+     type=  &quot;b&quot;,
+     xlab = &quot;&quot;,
+     ylab=&quot;Number of States&quot;,
+    main = &quot;Count of states with highest economic\nlosses from each weather category&quot;)
+axis(1, labels = FALSE)
+text(1:length(event_count),par(&quot;usr&quot;)[3] - 1, srt = 45, adj = 1,
+     labels = vr, xpd = TRUE)
+</code></pre>
+
+<p><img src="data:image/png;base64,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" alt="plot of chunk unnamed-chunk-5"/> </p>
+
 <p>##Results:
-###The analysis shows that 94.6% of all weather-related casualties from 1950 - 2011 are caused by 20 of the 985 types of weather events that are tracked by NOAA. As for the ecomomic consequences of bad weather, the following 11 weather events: flash floods, thunderstorm wind, tornados, floods, winter storms, hurricane/typhoons, high winds, river floods, storm surges, hail and hurricanes account for the most amount of property and/or crop damage in all 50 states.</p>
+###The analysis shows that 76% of all weather-related casualties from 1950 - 2011 are caused by weather activity that are linked to Tornados and Thunderstorms. As for the ecomomic consequences of bad weather, data from the plot above shows that rain and flood account for the greatest amount of economic loss in 24 of the 50 states (48%). While Tornados account for far more casualties, rain and floods (and related activity) cause the most damage.</p>
 
 </body>
 

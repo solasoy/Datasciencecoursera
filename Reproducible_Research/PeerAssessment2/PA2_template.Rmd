@@ -1,26 +1,137 @@
 An Evaluation of Severe Weather Data from 1950 - 2011
 ==============================================================================
 ## Synopsis: 
-### This report evaluates weather data acquired over 60 years (1950-2011) by the National Oceanic and Atmospheric Administration (NOAA). The analysis is narrowly focused on determining (1) the weather events that are most harmful to human health and (2) which weather events have the greatest ecomonic consequences across the United States. The analysis shows that 20 of the 985 unique weather events recorded over the measurement period account for 95% of all weather-related casualties (including injuries and fatalities) in the United States. Furthermore, 11 specific weather events are the most consequential with respect to property and crop damage across all 50 states.
+### This report evaluates weather data acquired over 60 years (1950-2011) by the National Oceanic and Atmospheric Administration (NOAA). The analysis is narrowly focused on determining (1) the weather events that are most harmful to human health and (2) which weather events have the greatest ecomonic consequences across the United States. The analysis shows that Tornados are the largest source of human casualties (including injuries and fatalities) from weather related activity, accounting for 64% of casualties over the sampling period. Furthermore, the analysis indicates that rains and floods (and related activity), are the reason for most of the weather-related economic loss in half of all the 50 states.
 
 ## Data Processing: 
-###The NOAA database was downloaded from web via the John Hopkins Coursera portal and stored on the computer with which the analysis was done. The .csv file (repdata-data-StormData.csv) was then loaded in the R environment as follows:
+###The NOAA database was downloaded from web via the John Hopkins DataScience-Coursera site and stored on the computer with which the analysis was done. The .csv file (repdata-data-StormData.csv) consisting of 902297 rows and 37 columns, was then loaded into the R environment as follows:
 
 ```{r, echo=TRUE}
 setwd("C://Users//solasoy//Dropbox//R//Coursera//Reproducible Research")
 x <- read.csv(file='repdata-data-StormData.csv',
               colClasses="character")
 ```
-###Next, for each of the 985 unique weather events, the number of total number of fatalities and injuries across the data sampling period was summed to give the number of casualties stemming from this weather activity.
+###The 985 weather events that were recorded over time were found to contain repititions and other redundant information. Accordingly the data required some filtering followed by the categorization of weather activity into distinct groups to facilitate further analysis. Accordingly, the following 8 weather categories were defined for all weather events:
 
-```{r, Weather-related casualty data,echo=TRUE}
+#####1. Marine Activity - Hurricanes, Typhoons, Tropical Depressions etc
+#####2. Winter Weather - Blizzards, Snow storms, freezing rain, etc
+#####3. Rain and Floods - Sustained Precipitation
+#####4. Thunderstorms - Specifically wind gusts and lightning with some rain
+#####5. Hail
+#####6. Tornado -including waterspouts
+#####7. Fire - Forest fires, wild fires etc
+#####8. High Temperature with Dry Conditions - Excessive heat, drought conditons
+
+### The data pre-processing step was carried out as follows:
+
+```{r, Data cleaning,echo=TRUE}
 x$INJURIES <- as.numeric(x$INJURIES)
 x$FATALITIES <- as.numeric(x$FATALITIES)
 
-u <- unique(x$EVTYPE) # unique weather events
+u <- unique(x$EVTYPE)
+
+# Consolidate event types into coherent groups
+
+# Marine_storms -------------------------------------------------------------
+a <- union(union(union(union(union(u[grepl("HURRICANE",u,ignore.case=TRUE)],
+    u[grepl("TYPHOON",u,ignore.case=TRUE)]),u[grepl("TSUNAMI",u,ignore.case=TRUE)]),
+    u[grepl("Swell",u,ignore.case=TRUE)]),u[grepl("Tropical Depression",u,ignore.case=TRUE)]),
+    u[grepl("Surge",u,ignore.case=TRUE)])
+    
+
+# Winter_weather -------------
+b <- union(union(union(union(union(union(union(union(union(union(union(union(u[grepl("SNOW",u,ignore.case=TRUE)],
+      u[grepl("BLIZZARD",u,ignore.case=TRUE)]),u[grepl("CHILL",u,ignore.case=TRUE)]),
+      u[grepl("COLD",u,ignore.case=TRUE)]),u[grepl("Frost",u,ignore.case=TRUE)]),
+      u[grepl("wintry",u,ignore.case=TRUE)]),u[grepl("Freezing",u,ignore.case=TRUE)]),
+      u[grepl("Freeze",u,ignore.case=TRUE)]),u[grepl("ICE",u,ignore.case=TRUE)]),
+      u[grepl("hypothermia",u,ignore.case=TRUE)]),u[grepl("fog",u,ignore.case=TRUE)]),
+      u[grepl("Winter",u,ignore.case=TRUE)]),u[grepl("Avalanche",u,ignore.case=TRUE)])
+
+
+# Rain_and_Flood-------------------------------------
+c <- union(u[grepl("RAIN",u,ignore.case=TRUE)],u[grepl("FLOOD",u,ignore.case=TRUE)])
+c <- c[!grepl("WIND",c,ignore.case=TRUE)]
+c <- c[!grepl("FREEZING RAIN",c,ignore.case=TRUE)]
+c <- c[!grepl("SNOW",c,ignore.case=TRUE)]
+c <- c[!grepl("ice",c,ignore.case=TRUE)]
+c <- c[!grepl("lightning",c,ignore.case=TRUE)]
+
+
+# Fire ---------------------
+d <- union(u[grepl("FIRE",u,ignore.case=TRUE)],u[grepl("Smoke",u,ignore.case=TRUE)])
+
+
+# Thunderstorm_Wind_and_Lightning ------------------------
+e <- union(union(union(u[grepl("WIND",u,ignore.case=TRUE)],
+    u[grepl("THUNDERSTORM",u,ignore.case=TRUE)]), u[grepl("TSTM",u,ignore.case=TRUE)]),
+    u[grepl("lightning",u,ignore.case=TRUE)])
+
+e <- e[!grepl("WINDCHILL",e,ignore.case=TRUE)]
+e <- e[!grepl("RAIN",e,ignore.case=TRUE)]
+e <- e[!grepl("FLOOD",e,ignore.case=TRUE)]
+e <- e[!grepl("SNOW",e,ignore.case=TRUE)]
+e <- e[!grepl("CHILL",e,ignore.case=TRUE)]
+e <- e[!grepl("HURRICANE",e,ignore.case=TRUE)]
+e <- e[!grepl("Tornado",e,ignore.case=TRUE)]
+e <- e[!grepl("hail",e,ignore.case=TRUE)]
+e <- e[!grepl("Blizzard",e,ignore.case=TRUE)]
+e <- e[!grepl("Marine",e,ignore.case=TRUE)]
+e <- e[!grepl("Winter",e,ignore.case=TRUE)]
+
+# Hail ------------
+f <- u[grepl("HAIL",u,ignore.case=TRUE)]
+
+# Tornado -----------------------------------------------
+g <- union(u[grepl("Tornado",u,ignore.case=TRUE)],u[grepl("Tornados",u,ignore.case=TRUE)])
+
+# High_Temperature and Dry Weather ----------------------------
+h <- union(union(union(u[grepl("TEMP",u,ignore.case=TRUE)],u[grepl("WARM",u,ignore.case=TRUE)]),
+                 u[grepl("Hot",u,ignore.case=TRUE)]),u[grepl("heat",u,ignore.case=TRUE)])
+h <- h[!grepl("Chill",h,ignore.case=TRUE)]
+h <- h[!grepl("Wet",h,ignore.case=TRUE)]
+h <- h[!grepl("Cold",h,ignore.case=TRUE)]
+
+# Generate filtered data set (x_filtered)
+x_filtered <- x[x$EVTYPE %in% c(a,b,c,d,e,f,g,h),]
+
+# Add factor column describing weather event categories
+v <- x_filtered$EVTYPE
+v[x_filtered$EVTYPE %in% a] = "Marine_Activity"
+v[x_filtered$EVTYPE %in% b] = "Winter_Weather"
+v[x_filtered$EVTYPE %in% c] = "Rain_Flood"
+v[x_filtered$EVTYPE %in% d] = "Fire"
+v[x_filtered$EVTYPE %in% e] = "TSTM_Wind_Lightning"
+v[x_filtered$EVTYPE %in% f] = "Hail"
+v[x_filtered$EVTYPE %in% g] = "Tornado"
+v[x_filtered$EVTYPE %in% h] = "HiTemp_Dry_Conditions"
+
+
+# Generate table that map event categories to specific recorded weather activity
+grps <- c(paste(a, collapse=', ' ),paste(b, collapse=', ' ),
+          paste(c, collapse=', ' ),paste(d, collapse=', ' ),
+          paste(e, collapse=', ' ),paste(f, collapse=', ' ),
+          paste(g, collapse=', ' ),paste(h, collapse=', ' ))
+
+
+event_classification <- data.frame(Event_Group=c("Marine_Activity","Winter_Weather",
+  "Rain_Flood","Fire","TSTM_Wind_Lightning","Hail","Tornado",
+  "HiTemp_Dry_Conditions"),Event_type=grps)            
+
+```
+
+### Note, a distinction is made between Thunderstorm activity (weather category 4) that primarily entails strong wind gusts and lightning interspersed with rain activity, and sustained precipitation from rain over longer periods that lead to flooding (weather category 3). 
+
+### The filtered database (x_filtered) contains 655 recorded weather activities (868033 rows of data) that map into the event categories as described above. The filtered data was used for further analysis. 
+
+### The  total number of fatalities and injuries across the data sampling period was summed to give the number of casualties for each weather category.
+
+```{r, Weather-related casualty data,echo=TRUE}
+x_filtered$Event_Categories <- v
+u <- unique(x_filtered$Event_Categories)
 y <- matrix(0,length(u),2)
 for (j in 1:length(u)) {
-  y[j,] <- colSums(x[x$EVTYPE == u[j],c("FATALITIES","INJURIES")],na.rm=TRUE)
+  y[j,] <- colSums(x_filtered[x_filtered$Event_Categories == u[j],c("FATALITIES","INJURIES")],na.rm=TRUE)
 }
   
 index <- order(as.numeric(rowSums(y)),as.numeric(y[,2]),as.numeric(y[,1]),decreasing=TRUE)
@@ -29,64 +140,50 @@ df <- data.frame(EVENT=u[index],FATALITIES=as.numeric(y[index,1]),
     PERCENT_OF_TOTAL=100*as.numeric(rowSums(y[index,]))/sum(as.numeric(rowSums(y))))
 ```
 
-###An event severity index for each weather event was determined by taking the log of all casualty numbers for, i.e. 
+### An event severity index for each weather event was determined by taking the log of all casualty numbers for, i.e. 
 
 ```{r, Event severity index estimation, data,echo=TRUE}
 event_severity_index <- log(df$CASUALTY_COUNT)
 ```
 
-### The casualty data arising from all the monitored weather events were captured in a data frame. The top 20 weather events with respect to casualty levels, are as follows:
+### The casualty data arising from all the monitored weather events by event category, was estimated  and the results displayed in the the table below
 
-```{r, echo=TRUE}
+```{r, echo=FALSE}
 head(df,20)
 ```
 
-###The following plot tracks the event severity index by weather type, and shows the most consequential weather events:
+###The table above indicates that Tornados are the largest contributor to the casualty levels from weather related activity (64%). Tornados coupled with thunderstorm activity (wind and lightening) account for 76% of all casualties
+
+###The following plot tracks the event severity index by event category, where the even categories are displayed from the most consequential to the least consequential:
 
 ```{r,Event severity index versus weather event,echo=TRUE}
 par(mar = c(7, 4, 4, 2) + 0.1) ## Increase bottom margin to make room for rotated labels
-plot(event_severity_index[1:20], xaxt = "n", pch=19,
+plot(event_severity_index, xaxt = "n", pch=19,cex=1.5,
      type=  "b",
      xlab = "",
      ylab="Event Severity Index",
-     main="Top 20 most harmful weather events to humans")
+      main="Severity of Human Casualties by Event Category")
 axis(1, labels = FALSE)
-labels <- df$EVENT[1:20]
-text(1:20,par("usr")[3] - 0.25, srt = 45, adj = 1,
-     labels = labels, xpd = TRUE)
-```
-
-###The following plot highlights the percentage of all weather-related casualties in the last 60 years that derive from each of the top 20 weather events:
-
-```{r, Percent of total casualties versus weather event,echo=TRUE}
-par(mar = c(7, 4, 4, 2) + 0.1) 
-with(df,plot(PERCENT_OF_TOTAL[1:20],pch=19,
-      ylab="Percent of Total Casualties",
-      xlab=NA,
-      type="b", xaxt = "n",
-      main="Weather events responsible for 94.6%\nof total number of casualties"))
-
-axis(1, labels = FALSE)
-labels <- df$EVENT[1:20]
-text(1:20,par("usr")[3] - 0.25, srt = 45, adj = 1,
+labels <- as.character(df$EVENT)
+text(1:length(event_severity_index),par("usr")[3] - 0.25, srt = 45, adj = 1,
      labels = labels, xpd = TRUE)
 ```
 
 ###Next, property and crop damage data were used to evaluate the ecomomic consequences of weather events. Specifically, data from each of the 50 states was evaluated and the weather event resulting in the highest monetary loss from property and crop damage was determined. The analysis was carried out as follows:
 
-```{r, Pre-filter Data,echo=TRUE}
-xt = x # assign NOAA dataset to new variable xt and use the variables PROPDMGEXP and CROPDMGEXP to filter data
+```{r,echo=TRUE}
+xt = x_filtered # assign NOAA dataset to new variable xt and use the variables PROPDMGEXP and CROPDMGEXP to filter data
 f1 <- union(union(grep("K",xt$PROPDMGEXP),grep("B",xt$PROPDMGEXP)),grep("M",xt$PROPDMGEXP))
 f2 <- union(union(grep("K",xt$CROPDMGEXP),grep("B",xt$CROPDMGEXP)),grep("M",xt$CROPDMGEXP))
 f <- union(f1,f2)
-xt <- x[f,]
+xt <- x_filtered[f,]
 ```
 
 ```{r, Initialize dataframe,echo=TRUE}
 v <- unique(xt$STATE)
 v <- c(v[1:3],"AK",v[4:49]) # 50 states
 z <- data.frame(matrix(ncol = 3, nrow = length(v))) 
-colnames(z) <- c("STATE","EVENT","TOTAL_DAMAGES (TRILLION $)")
+colnames(z) <- c("STATE","EVENT_CATEGORY","TOTAL_DAMAGES (TRILLION $)")
 ```
 
 ### Retrieve property and crop damage amounts for the event with the larget economic consequence for each state
@@ -96,7 +193,7 @@ for (j in 1:length(v)) {
   
   # Retrieve crop damage data
   select <- xt$STATE == v[j] & (xt$PROPDMG > 0 | xt$CROPDMG > 0)
-  df <- xt[select,c("EVTYPE", "PROPDMG", "PROPDMGEXP","CROPDMG", "CROPDMGEXP")]
+  df <- xt[select,c("Event_Categories", "PROPDMG", "PROPDMGEXP","CROPDMG", "CROPDMGEXP")]
   df$PROPDMG <- as.numeric(df$PROPDMG)
   df$CROPDMG <- as.numeric(df$CROPDMG)
   df$PROPDMG[df$PROPDMGEXP == "K"] <- array(df$PROPDMG * 1000,length(df$PROPDMG[df$PROPDMGEXP == "K"]))
@@ -110,7 +207,7 @@ for (j in 1:length(v)) {
   # Calculate total property and crop damage for each event type in state j
   y2 <- matrix(0,length(u),1) 
   for (k in 1:length(u)) {
-    y2[k] <- sum(colSums(df[df$EVTYPE == u[k],c("PROPDMG","CROPDMG")],na.rm=TRUE))
+    y2[k] <- sum(colSums(df[df$Event_Categories == u[k],c("PROPDMG","CROPDMG")],na.rm=TRUE))
   }
   
   # Sort results to determine event with largest property damamge in state j
@@ -122,11 +219,41 @@ for (j in 1:length(v)) {
 }
 ```
 
-### The data that ties the largest economic losses to the a specific type of weather event in all of the 50 states, is summarized in the following table:
+### The data that ties the largest economic losses to a specific weather category across all 50 states (US Territories exluded), is summarized in the following table:
 
 ```{r,echo=FALSE}
 z
 ```
 
+```{r,echo=TRUE}
+# Distribution of event-categories leading to the most property damages across all 50 states
+event_count <- c(length(z[z$EVENT_CATEGORY=="Marine_Activity",2]),
+                 length(z[z$EVENT_CATEGORY=="Winter_Weather",2]),
+                 length(z[z$EVENT_CATEGORY=="Rain_Flood",2]),
+                 length(z[z$EVENT_CATEGORY=="Fire",2]),
+                 length(z[z$EVENT_CATEGORY=="TSTM_Wind_Lightning",2]),
+                 length(z[z$EVENT_CATEGORY=="Hail",2]),
+                 length(z[z$EVENT_CATEGORY=="Tornado",2]),
+                 length(z[z$EVENT_CATEGORY=="HiTemp_Dry_Conditions",2]))
+
+
+vr <- c("Marine_Activity","Winter_Weather","Rain_Flood",
+  "Fire","TSTM_Wind_Lightning","Hail","Tornado",
+  "HiTemp_Dry_Conditions")
+
+par(mar = c(7, 4, 4, 2) + 0.1) ## Increase bottom margin to make room for rotated labels
+plot(event_count, xaxt = "n", pch=19,cex=1.5,
+     type=  "b",
+     xlab = "",
+     ylab="Number of States",
+    main = "Count of states with highest economic\nlosses from each weather category")
+axis(1, labels = FALSE)
+text(1:length(event_count),par("usr")[3] - 1, srt = 45, adj = 1,
+     labels = vr, xpd = TRUE)
+
+```
+
 ##Results:
-###The analysis shows that 94.6% of all weather-related casualties from 1950 - 2011 are caused by 20 of the 985 types of weather events that are tracked by NOAA. As for the ecomomic consequences of bad weather, the following 11 weather events: flash floods, thunderstorm wind, tornados, floods, winter storms, hurricane/typhoons, high winds, river floods, storm surges, hail and hurricanes account for the most amount of property and/or crop damage in all 50 states.
+###The analysis shows that 76% of all weather-related casualties from 1950 - 2011 are caused by weather activity that are linked to Tornados and Thunderstorms. As for the ecomomic consequences of bad weather, data from the plot above shows that rain and flood account for the greatest amount of economic loss in 24 of the 50 states (48%). While Tornados account for far more casualties, rain and floods (and related activity) cause the most damage.
+
+
