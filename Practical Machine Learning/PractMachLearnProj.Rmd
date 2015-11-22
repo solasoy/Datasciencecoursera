@@ -1,0 +1,90 @@
+Analysis Excercise Monitoring Data
+===========================================================================
+By Olusola Soyemi
+===========================================================================
+### Executive Summary:
+#### A machine learning model to predict the excercise qualtity using accelerometer measurements from 6 volunteer subjects during controlled excersises. A quadratic discriminant model was developed to predict 5 possible levels of exercise quality (1 good, 4 bad) with about 90% clasification accuracy. The model was applied to data acquired from 20 test cases and 100% of all the test cases were correctly classified by exercise quality.
+
+#### The model training and test data was accessed from the web repository as follows:
+
+```{r, echo=TRUE}
+training <- read.csv('train.csv')
+testing <- read.csv('test.csv')
+```
+### Feature Selection
+
+#### The training set data consists of 19622 measurements acquired across 160 variables on 6 male subjects from 20-28 years old. The variable include the dependent variable ("classe") describing exercise quality (A-E). The remaining 159 variables contain variants of accelerometer measurements from the arm, forearm, dumbbell and exercise belt; as well as time. The following steps were taken in selecting the best combination of predictors for modeling  "classe"
+
+#### First all the variables containing incomplete data were removed
+
+```{r, echo=TRUE,message=FALSE}
+library("caret")
+cname <- colnames(training)
+colnames(testing) <- cname
+ytrain <- training$classe 
+ytest <- testing$classe
+
+# Remove the variable "classe" from training and test sets
+training <- training[,cname!="classe"]
+testing <- testing[,cname!="classe"]
+cname <- cname[cname!="classe"]
+
+h <- logical()
+for (j in 1:dim(training)[2]){
+ h <- rbind(h,!("TRUE" %in% is.na(training[,j])))
+}
+
+training <- training[,cname[h]]
+testing <- testing[,cname[h]]
+cname <- cname[h]
+```
+
+####  Next, near zeros variance predictors were identified and removed.
+```{r, echo=TRUE}
+nz <- nearZeroVar(training,saveMetrics=TRUE)
+training <- training[,nz$nzv==FALSE]
+testing <- testing[,nz$nzv==FALSE]
+cname <- cname[nz$nzv==FALSE]
+```
+
+#### Finally all the time-related variables were removed because no significant time trends were identified in the remaining predictors.
+
+```{r, echo=TRUE}
+training <- training[,-(1:6)] # Remove time related variables
+testing <- testing[,-(1:6)]
+cname <- cname[-(1:6)]
+```
+
+####  The feature-set selection process resulted in the downsampling of the predictor set from 160 to 52 variables (13 each from the belt, forearm, arm and dumbbell exercises).
+
+###  Machine-Learning Model
+
+####  The machine-learning algorithm that was utilized for this modeling project is Quadratic Discriminant Analysis (QDA)- realizing that more than one method would probably suffice for this dataset. QDA is the generalized form of linear discriminant analysis that extends the learning of linear boundaries to non-linear ones. The computation is relative easy and fast (a closed-form solution is generated for each classifier), which is particularly useful for a dataset of this size. Most importantly, it does not require any tuning with hyperparameters (such as PCA components), so that re-sampling approaches like cross-validation and bootstrap do not add value to the modeling step in terms of improving classification accuracy.
+
+####  Because of the difference in the magnitude of the various predictors, the only preprocessing applied to the data was scaling and centering. It should however be pointed out that there is significant correlation between variables that are tied to each excerise type (arm, forearm, belt or dumbbell). Further feature set reduction with PCA was however found not the improve the results - again perhaps due to the well-documented flexibility of quadratic discriminant classifiers.
+
+```{r, echo=TRUE,message=FALSE}
+# Preprocess training set
+preObj <- preProcess(training ,method=c("center","scale"))
+trainingH <- predict(preObj,training)
+
+# Split training set into 2 halves, one for modeling and one for model verification
+ix <- createDataPartition(y=ytrain,p=0.5,list=FALSE)
+modelfit <- train(ytrain[ix] ~.,method="qda",
+                  data=trainingH[ix,])
+```
+
+####  The model perfomance metrics (confustion matrix and associated statistics) was evaluated by applying the model generated from half of the training set, to the other half of the training data.
+
+```{r, echo=TRUE,message=FALSE}
+confusionMatrix(ytrain[-ix],predict(modelfit,trainingH[-ix,]))
+
+```
+
+####  The above results indicate an overall classification accuracy of approximately 90% for the model. It should be noted that several repeated random splits of the data yielded a consistent result. The independent test set (20 execises with quality levels A to E) was pre-processed using the centering and scaling parameters derived from the training exercise and applied to the model as follows:
+
+```{r, echo=TRUE}
+testingH <- predict(preObj,testing) # apply test samples to model
+results <- predict(modelfit,testingH) # results
+```
+#### The independent model test yielded results in which the exercise qualilty for each of the 20 test subjects was correctly identified i.e. 100% test accuracy.
