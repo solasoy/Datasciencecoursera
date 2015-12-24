@@ -1,11 +1,13 @@
-Analysis Excercise Monitoring Data
-===========================================================================
-By Olusola Soyemi
-===========================================================================
+---
+title: "Analysis of Excercise Monitoring Data"
+author: "O Soyemi"
+output: html_document
+self-contained: no
+---
 ### Executive Summary:
-#### A machine learning model to predict the excercise qualtity using accelerometer measurements from 6 volunteer subjects during controlled excersises. A quadratic discriminant model was developed to predict 5 possible levels of exercise quality (1 good, 4 bad) with about 90% clasification accuracy. The model was applied to data acquired from 20 test cases and 100% of all the test cases were correctly classified by exercise quality.
+#### This exercise seeks to develop a machine learning model to predict  excercise qualtity using accelerometer measurements from 6 volunteer subjects during controlled excersises. Specifically, a random Forest classification model for predicting 5 possible levels of exercise quality (1 good, 4 bad) was developed using additional bootstrap aggregation beyond that which is intrinsic to Random Forest modeling - i.e. "double" bootstrap analysis. This is likely an overkill, but I got to learn the mechanics of bootstrapping. The aggregated model produced a 99% clasification accuracy with the training dataset. The model was applied to data acquired from 20 test cases and 100% of all the test cases were correctly classified by exercise quality.
 
-#### The model training and test data was accessed from the web repository as follows:
+#### The model training and test data was downloaded from web and loaded into the R working environment as follows:
 
 ```{r, echo=TRUE}
 training <- read.csv('train.csv')
@@ -13,7 +15,7 @@ testing <- read.csv('test.csv')
 ```
 ### Feature Selection
 
-#### The training set data consists of 19622 measurements acquired across 160 variables on 6 male subjects from 20-28 years old. The variable include the dependent variable ("classe") describing exercise quality (A-E). The remaining 159 variables contain variants of accelerometer measurements from the arm, forearm, dumbbell and exercise belt; as well as time. The following steps were taken in selecting the best combination of predictors for modeling  "classe"
+#### The training set data consists of 19622 measurements acquired across 160 variables on 6 male subjects from 20-28 years old (1). The variables include the dependent variable ("classe") describing exercise quality (A-E). The remaining 159 variables contain variants of accelerometer measurements from the arm, forearm, dumbbell and exercise belt; as well as time. The following steps were taken in selecting the best combination of predictors for modeling  "classe"
 
 #### First all the variables containing incomplete data were removed
 
@@ -55,36 +57,93 @@ testing <- testing[,-(1:6)]
 cname <- cname[-(1:6)]
 ```
 
-####  The feature-set selection process resulted in the downsampling of the predictor set from 160 to 52 variables (13 each from the belt, forearm, arm and dumbbell exercises).
+####  The feature-set selection process resulted in the downsampling of the predictor set from 160 to 52 predictors (13 each from the belt, forearm, arm and dumbbell exercises). The selected predictors are:
 
+``` {r, echo=TRUE}
+# Data fram listing variables by exercise type
+g <- data.frame(cbind(cname[grepl('_belt',cname)],
+cname[grepl('_dumbbell',cname)],
+cname[grepl('_forearm',cname)],
+cname[grepl('_arm',cname)]))
+colnames(g) <- c("Belt","Dumbbell","Forearm","Arm")
+```
 ###  Machine-Learning Model
 
-####  The machine-learning algorithm that was utilized for this modeling project is Quadratic Discriminant Analysis (QDA)- realizing that more than one method would probably suffice for this dataset. QDA is the generalized form of linear discriminant analysis that extends the learning of linear boundaries to non-linear ones. The computation is relative easy and fast (a closed-form solution is generated for each classifier), which is particularly useful for a dataset of this size. Most importantly, it does not require any tuning with hyperparameters (such as PCA components), so that re-sampling approaches like cross-validation and bootstrap do not add value to the modeling step in terms of improving classification accuracy.
-
-####  Because of the difference in the magnitude of the various predictors, the only preprocessing applied to the data was scaling and centering. It should however be pointed out that there is significant correlation between variables that are tied to each excerise type (arm, forearm, belt or dumbbell). Further feature set reduction with PCA was however found not the improve the results - again perhaps due to the well-documented flexibility of quadratic discriminant classifiers.
+####  Realizing that there are multiple machine-learning algorithm options for this dataset, the random forest algorithm was chosen to model this data. Because of the difference in the magnitude of the various predictors, the only preprocessing applied to the data was scaling and centering.
 
 ```{r, echo=TRUE,message=FALSE}
 # Preprocess training set
 preObj <- preProcess(training ,method=c("center","scale"))
 trainingH <- predict(preObj,training)
-
-# Split training set into 2 halves, one for modeling and one for model verification
-ix <- createDataPartition(y=ytrain,p=0.5,list=FALSE)
-modelfit <- train(ytrain[ix] ~.,method="qda",
-                  data=trainingH[ix,])
 ```
 
-####  The model perfomance metrics (confustion matrix and associated statistics) was evaluated by applying the model generated from half of the training set, to the other half of the training data.
+#### The number of variables that are randomly sampled at each split was set to sqrt(#predictors) or sqrt(52) which is ~ 7 (this is the default for this algorithm, and it works well enough. The optimum number of trees was optimized as follows:
 
 ```{r, echo=TRUE,message=FALSE}
-confusionMatrix(ytrain[-ix],predict(modelfit,trainingH[-ix,]))
+library("randomForest")
+
+# optimize number of classification trees
+ix <- createDataPartition(y=ytrain,p=0.7,list=FALSE)
+initfit <- randomForest(trainingH[ix,],y=ytrain[ix],
+       xtest=trainingH[-ix,],ytest=ytrain[-ix],ntree=50)
+
+f <- initfit$err.rate[,colnames(initfit$err.rate) != "OOB"]
+matplot(f, type = "p",pch=19,col = 1:5,ylab="Error Rate (%)",xlab='#Trees') #plot
+legend("topright", legend = c("A","B","C","D","E"), col=1:5, pch=19) 
+abline(v=20)
 
 ```
 
-####  The above results indicate an overall classification accuracy of approximately 90% for the model. It should be noted that several repeated random splits of the data yielded a consistent result. The independent test set (20 execises with quality levels A to E) was pre-processed using the centering and scaling parameters derived from the training exercise and applied to the model as follows:
+####  Based on the plotted results of error rate versus number of trees, 20 trees was found to be optimum for the 5 classes. Next an aggregated bootstrap model with 20 trees and 7 randomly sampled variables for each bootstrap samples (Number of bootstrap (re)samples = 20)
 
-```{r, echo=TRUE}
-testingH <- predict(preObj,testing) # apply test samples to model
-results <- predict(modelfit,testingH) # results
+```{r, echo=TRUE,message=FALSE}
+iter = 20 # Number of bootstrap samples
+testingH <- predict(preObj,testing) # Pre-process data from 20 test subjects
+acc <- matrix(0,nrow=iter) # Initialize matrix of aggregated accuracy data
+ypred <- matrix(0,nrow=20,ncol=iter) # Initialize matrix of class assignments for each of the 20 test samples
+SenSpe <- matrix(0,nrow=5,ncol=2) # Initialize matrix of aggregated Sensitivity/Specificity per class
+
+for (i in 1:iter){
+  ix <- createDataPartition(y=ytrain,p=0.6,list=FALSE) # generate fresh partitions
+  fit <- randomForest(trainingH[ix,],y=ytrain[ix],ntree=20)
+  ypred[i,] <- predict(fit,testingH)
+  cp <- confusionMatrix(table(ytrain[-ix],predict(fit,trainingH[-ix,])))
+  SenSpe <- SenSpe + as.matrix(cp$byClass[,1:2])
+  acc[i] <- as.numeric(cp$overall[1]) # accuracy
+}
 ```
+
+#### Next, the aggregated model metrics (sensitivity and specficity for each of the 5 classes and the classification accuracy) were estimated.
+
+#### Aggregate Sensitivity and Specificity:
+```{r, echo=TRUE,message=FALSE}
+SenSpe <- SenSpe/iter 
+SenSpe
+```
+
+#### Aggregate accuracy in percent:
+```{r, echo=TRUE,message=FALSE}
+acc <- 100*mean(as.numeric(acc))
+acc
+```
+
+#### Confusion Matrix (Final bootstrap model only)
+```{r, echo=TRUE,message=FALSE}
+fit$confusion
+```
+
+####  Finally, the class assignments from for each of the 20 test samples was determine from the aggregate model via majority vote:
+
+```{r, echo=TRUE,message=FALSE}
+library("plyr")
+
+c <- unique(ytrain)
+r <- as.numeric(count(ypred))[1:20]
+results <- c[r] # class assignments for 20 test samples
+```
+
 #### The independent model test yielded results in which the exercise qualilty for each of the 20 test subjects was correctly identified i.e. 100% test accuracy.
+
+### REFERENCES
+#### (1) Velloso, E.; Bulling, A.; Gellersen, H.; Ugulino, W.; Fuks, H. Qualitative Activity Recognition of Weight Lifting Exercises. Proceedings of 4th International Conference in Cooperation with SIGCHI (Augmented Human '13) . Stuttgart, Germany: ACM SIGCHI, 2013.
+

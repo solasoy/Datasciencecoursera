@@ -1,0 +1,5 @@
+USER INSTRUCTIONS:
+
+By selecting different values of the Expected Signal Amplitude, Sample Freqency and Period, Modulation Frequency and Reference Signal Amplitude, the user will be able to simulate
+a noisy signal (black trace in the displayed graph), filter the signal (red trace) and compare the filtered signal to the expected value (blue line).
+
